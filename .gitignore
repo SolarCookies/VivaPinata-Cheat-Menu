@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+VivaPinata_Injector.sln
+VivaPinata_Injector.vcxproj
+VivaPinata_Injector.vcxproj.filters
+build/VivaPinata_Injector.dll
