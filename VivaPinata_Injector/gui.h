@@ -3,22 +3,25 @@
 #include <string>
 #include <iostream>
 
+#include "MemoryHelpers.h"
+#include "Patches.h"
+
 namespace gui
 {
 	// show menu?
-	inline bool open = true;
+	inline bool open = false;
 
 	// is menu setup?
 	inline bool setup = false;
 
 	// winapi related
-	inline HWND window = nullptr;
-	inline WNDCLASSEX windowClass = { };
+	inline HWND Ourwindow = nullptr;
+	inline WNDCLASSEX OurwindowClass = { };
 	inline WNDPROC originalWindowProcess = nullptr;
 
 	// dx stuff
-	inline LPDIRECT3DDEVICE9 device = nullptr;
-	inline LPDIRECT3D9 d3d9 = nullptr;
+	inline LPDIRECT3DDEVICE9 Ourdevice = nullptr;
+	inline LPDIRECT3D9 Ourd3d9 = nullptr;
 
 	bool SetupWindowClass(const char* windowClassName) noexcept;
 	void DestroyWindowClass() noexcept;

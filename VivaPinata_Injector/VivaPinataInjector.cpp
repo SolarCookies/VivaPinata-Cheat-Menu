@@ -74,6 +74,7 @@ BOOL WINAPI DllMain(
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
+		
 		DisableThreadLibraryCalls(instance);
 
 		const auto thread = CreateThread(

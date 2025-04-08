@@ -25,21 +25,21 @@ bool gui::SetupWindowClass(const char* windowClassName) noexcept
 {
 	std::cout << "Creating temp window class" << std::endl;
 	// populate window class
-	windowClass.cbSize = sizeof(WNDCLASSEX);
-	windowClass.style = CS_HREDRAW | CS_VREDRAW;
-	windowClass.lpfnWndProc = DefWindowProc;
-	windowClass.cbClsExtra = 0;
-	windowClass.cbWndExtra = 0;
-	windowClass.hInstance = GetModuleHandle(NULL);
-	windowClass.hIcon = NULL;
-	windowClass.hCursor = NULL;
-	windowClass.hbrBackground = NULL;
-	windowClass.lpszMenuName = NULL;
-	windowClass.lpszClassName = windowClassName;
-	windowClass.hIconSm = NULL;
+	OurwindowClass.cbSize = sizeof(WNDCLASSEX);
+	OurwindowClass.style = CS_HREDRAW | CS_VREDRAW;
+	OurwindowClass.lpfnWndProc = DefWindowProc;
+	OurwindowClass.cbClsExtra = 0;
+	OurwindowClass.cbWndExtra = 0;
+	OurwindowClass.hInstance = GetModuleHandle(NULL);
+	OurwindowClass.hIcon = NULL;
+	OurwindowClass.hCursor = NULL;
+	OurwindowClass.hbrBackground = NULL;
+	OurwindowClass.lpszMenuName = NULL;
+	OurwindowClass.lpszClassName = windowClassName;
+	OurwindowClass.hIconSm = NULL;
 
 	// register
-	if (!RegisterClassEx(&windowClass))
+	if (!RegisterClassEx(&OurwindowClass))
 		return false;
 
 	return true;
@@ -49,8 +49,8 @@ void gui::DestroyWindowClass() noexcept
 {
 	std::cout << "Destroying temp window class" << std::endl;
 	UnregisterClass(
-		windowClass.lpszClassName,
-		windowClass.hInstance
+		OurwindowClass.lpszClassName,
+		OurwindowClass.hInstance
 	);
 }
 
@@ -58,8 +58,8 @@ bool gui::SetupWindow(const char* windowName) noexcept
 {
 	std::cout << "Creating temp window" << std::endl;
 	// create temp window
-	window = CreateWindow(
-		windowClass.lpszClassName,
+	Ourwindow = CreateWindow(
+		OurwindowClass.lpszClassName,
 		windowName,
 		WS_OVERLAPPEDWINDOW,
 		0,
@@ -68,11 +68,11 @@ bool gui::SetupWindow(const char* windowName) noexcept
 		100,
 		0,
 		0,
-		windowClass.hInstance,
+		OurwindowClass.hInstance,
 		0
 	);
 
-	if (!window)
+	if (!Ourwindow)
 		return false;
 
 	return true;
@@ -80,9 +80,9 @@ bool gui::SetupWindow(const char* windowName) noexcept
 
 void gui::DestroyWindow() noexcept
 {
-	if (window) {
+	if (Ourwindow) {
 		std::cout << "Destroying temp window" << std::endl;
-		DestroyWindow(window);
+		DestroyWindow(Ourwindow);
 	}
 }
 
@@ -118,9 +118,9 @@ bool gui::SetupDirectX(std::string* ErrorMessageHandle) noexcept
 		std::cout << "Got Direct3DCreate9 address successfully" << std::endl;
 	}
 
-	d3d9 = create(D3D_SDK_VERSION);
+	Ourd3d9 = create(D3D_SDK_VERSION);
 
-	if (!d3d9) {
+	if (!Ourd3d9) {
 		std::cout << "Failed to create d3d9" << std::endl;
 		ErrorMessageHandle->append("Failed to create d3d9");
 		return false;
@@ -138,7 +138,7 @@ bool gui::SetupDirectX(std::string* ErrorMessageHandle) noexcept
 	params.MultiSampleType = D3DMULTISAMPLE_NONE;
 	params.MultiSampleQuality = NULL;
 	params.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	params.hDeviceWindow = window;
+	params.hDeviceWindow = Ourwindow;
 	params.Windowed = 1;
 	params.EnableAutoDepthStencil = 0;
 	params.AutoDepthStencilFormat = D3DFMT_UNKNOWN;
@@ -146,13 +146,13 @@ bool gui::SetupDirectX(std::string* ErrorMessageHandle) noexcept
 	params.FullScreen_RefreshRateInHz = 0;
 	params.PresentationInterval = 0;
 
-	if (d3d9->CreateDevice(
+	if (Ourd3d9->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_NULLREF,
-		window,
+		Ourwindow,
 		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
 		&params,
-		&device
+		&Ourdevice
 	) < 0) {
 		std::cout << "Failed to create DirectX device" << std::endl;
 		ErrorMessageHandle->append("Failed to create device");
@@ -167,18 +167,18 @@ bool gui::SetupDirectX(std::string* ErrorMessageHandle) noexcept
 
 void gui::DestroyDirectX() noexcept
 {
-	if (device)
+	if (Ourdevice)
 	{
 		std::cout << "Destroying DirectX device" << std::endl;
-		device->Release();
-		device = NULL;
+		Ourdevice->Release();
+		Ourdevice = NULL;
 	}
 
-	if (d3d9)
+	if (Ourd3d9)
 	{
 		std::cout << "Destroying d3d9" << std::endl;
-		d3d9->Release();
-		d3d9 = NULL;
+		Ourd3d9->Release();
+		Ourd3d9 = NULL;
 	}
 }
 
@@ -218,11 +218,11 @@ void gui::SetupMenu(LPDIRECT3DDEVICE9 device) noexcept
        return;  
    }  
 
-   window = params.hFocusWindow;  
-   std::cout << "Window: " << window << std::endl;
+   Ourwindow = params.hFocusWindow;
+   std::cout << "Window: " << Ourwindow << std::endl;
 
    originalWindowProcess = reinterpret_cast<WNDPROC>(  
-       SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcess))  
+       SetWindowLongPtr(Ourwindow, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcess))
    );  
 
    if (!originalWindowProcess) {  
@@ -235,7 +235,7 @@ void gui::SetupMenu(LPDIRECT3DDEVICE9 device) noexcept
 
    ImGuiIO& io = ImGui::GetIO(); 
 
-   ImGui_ImplWin32_Init(window);
+   ImGui_ImplWin32_Init(Ourwindow);
    
    ImGui_ImplDX9_Init(device);
 
@@ -251,7 +251,7 @@ void gui::Destroy() noexcept
 
 	// retore wnd proc
 	SetWindowLongPtr(
-		window,
+		Ourwindow,
 		GWLP_WNDPROC,
 		reinterpret_cast<LONG_PTR>(originalWindowProcess)
 	);
@@ -262,11 +262,40 @@ void gui::Destroy() noexcept
 void gui::RenderImGUI() noexcept
 {
 
-	ImGui::Begin("cool menu", &open);
-	ImGui::Text("Hello world!");
+	if (ImGui::Begin("Viva Pinata Mod Menu", &open)) {
+
+		//add slider for overhead camera height
+		//Get memory at offset "Viva Pinata.exe"+5F63E8 to double
+		float cameraHeight = GetDouble("5F63E8");
+		if (ImGui::SliderFloat("Overhead Camera Height", &cameraHeight, -5000.0f, 5000.0f)) {
+			SetDouble("5F63E8", cameraHeight);
+		}
+
+
+		bool bUnlimitedGardenSpace = IsPatchEnabled(UnlimitedGardenSpace);
+		if (ImGui::Checkbox("Unlimited Garden Space", &bUnlimitedGardenSpace)) {
+			SetPatch(UnlimitedGardenSpace, bUnlimitedGardenSpace);
+			if (bUnlimitedGardenSpace) {
+				std::cout << "Unlimited Garden Space enabled" << std::endl;
+			}
+			else {
+				std::cout << "Unlimited Garden Space disabled" << std::endl;
+			}
+		}
+
+		// uint32_t slider
+		if (PlayerDataPtr) {
+			uint32_t coins = PlayerDataPtr->Coins;
+			if (ImGui::SliderInt("Player Coins", reinterpret_cast<int*>(&coins), 0, 1000000000)) {
+				//SetPlayerCoins(coins);
+				PlayerDataPtr->Coins = coins;
+			}
+		}
+
+	}
+	
 	ImGui::End();
 
-	ImGui::ShowDemoWindow();
 }
 
 LRESULT CALLBACK WindowProcess(
@@ -287,14 +316,25 @@ LRESULT CALLBACK WindowProcess(
 		}
 	}
 
-	// pass messages to imgui
-	if (gui::open && ImGui_ImplWin32_WndProcHandler(
-		window,
-		message,
-		wideParam,
-		longParam
-	)) return 1L;
 
+
+	UINT newmessage;
+	WPARAM newwideParam;
+	LPARAM newlongParam;
+
+	if (gui::open) {
+		// pass messages to imgui
+		ImGui_ImplWin32_WndProcHandler(
+			window,
+			message,
+			wideParam,
+			longParam
+		);
+
+		//If imgui is open, we will need to figure out how to stop the input from going to the game
+	}
+
+	// pass messages to original window process
 	return CallWindowProc(
 		gui::originalWindowProcess,
 		window,
@@ -302,4 +342,5 @@ LRESULT CALLBACK WindowProcess(
 		wideParam,
 		longParam
 	);
+	
 }
