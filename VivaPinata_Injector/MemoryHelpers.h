@@ -20,6 +20,10 @@ static struct SimpleMemoryPatch {
 	std::vector<byte> enabledbytes;
 };
 
+static struct ComplexMemoryPatch {
+	std::vector<SimpleMemoryPatch> patches;
+};
+
 inline static bool IsPatchEnabled(const SimpleMemoryPatch& patch) noexcept {
 	//check to see if bytes at address are equal to the enabled bytes
 	for (size_t i = 0; i < patch.enabledbytes.size(); ++i) {
@@ -27,6 +31,15 @@ inline static bool IsPatchEnabled(const SimpleMemoryPatch& patch) noexcept {
 			return false;
 		}
 	}
+}
+inline static bool IsPatchEnabled(const ComplexMemoryPatch& patch) noexcept {
+	//check to see if bytes at address are equal to the enabled bytes
+	for (const auto& p : patch.patches) {
+		if (!IsPatchEnabled(p)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 inline static void SetPatch(SimpleMemoryPatch& patch, bool enable) noexcept {
@@ -40,6 +53,20 @@ inline static void SetPatch(SimpleMemoryPatch& patch, bool enable) noexcept {
 		//set bytes at address to disabled bytes
 		for (size_t i = 0; i < patch.disabledbytes.size(); ++i) {
 			*(byte*)(patch.address + i) = patch.disabledbytes[i];
+		}
+	}
+}
+inline static void SetPatch(ComplexMemoryPatch& patch, bool enable) noexcept {
+	if (enable) {
+		//set bytes at address to enabled bytes
+		for (SimpleMemoryPatch& p : patch.patches) {
+			SetPatch(p, true);
+		}
+	}
+	else {
+		//set bytes at address to disabled bytes
+		for (SimpleMemoryPatch& p : patch.patches) {
+			SetPatch(p, false);
 		}
 	}
 }

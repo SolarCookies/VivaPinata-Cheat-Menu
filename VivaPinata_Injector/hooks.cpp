@@ -130,8 +130,8 @@ HRESULT __stdcall hooks::SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT
 	device->SetRenderState(D3DRS_ZENABLE, FALSE); // Disable Z-buffer
 	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE); // Disable Z writes
 
-	ImGui::SetNextWindowBgAlpha(1.0f); // Ensure full opacity
-	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Top-left corner
+	ImGui::SetNextWindowBgAlpha(0.1f); // Ensure full opacity
+	//ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Top-left corner
 
 	gui::RenderImGUI();
 

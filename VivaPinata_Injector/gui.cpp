@@ -235,6 +235,11 @@ void gui::SetupMenu(LPDIRECT3DDEVICE9 device) noexcept
 
    ImGuiIO& io = ImGui::GetIO(); 
 
+   //set font to comiic sans ms
+   ImFontConfig fontConfig;
+   io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\comic.ttf", 20.0f, &fontConfig);
+
+
    ImGui_ImplWin32_Init(Ourwindow);
    
    ImGui_ImplDX9_Init(device);
@@ -291,6 +296,7 @@ void gui::RenderImGUI() noexcept
 				PlayerDataPtr->Coins = coins;
 			}
 		}
+
 
 	}
 	
