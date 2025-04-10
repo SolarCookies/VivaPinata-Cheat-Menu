@@ -271,9 +271,9 @@ void gui::RenderImGUI() noexcept
 
 		//add slider for overhead camera height
 		//Get memory at offset "Viva Pinata.exe"+5F63E8 to double
-		float cameraHeight = MemHelp::GetDouble("5F63E8");
+		float cameraHeight = MemHelp::GetDouble(0x005F63E8);
 		if (ImGui::SliderFloat("Overhead Camera Height", &cameraHeight, -5000.0f, 5000.0f)) {
-			MemHelp::SetDouble("5F63E8", cameraHeight);
+			MemHelp::SetDouble(0x005F63E8, cameraHeight);
 		}
 
 

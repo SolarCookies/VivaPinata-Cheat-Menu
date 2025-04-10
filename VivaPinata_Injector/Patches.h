@@ -73,7 +73,7 @@ inline char* C_a4;
 
 // Function to set player coins
 typedef char(__cdecl* SetPlayerCoinsF)(struct PlayerData*, uint32_t) noexcept;
-inline SetPlayerCoinsF SetPlayerCoinsPtr = (SetPlayerCoinsF)GetVivaAddressPtr("0073FB80");
+inline SetPlayerCoinsF SetPlayerCoinsPtr = (SetPlayerCoinsF)GetVivaAddressPtr(0x0073FB80);
 inline static void SetPlayerCoins(uint32_t Value) {
 	if (PlayerDataPtr)
 	{
