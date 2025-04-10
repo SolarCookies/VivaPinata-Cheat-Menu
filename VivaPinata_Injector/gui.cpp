@@ -271,15 +271,15 @@ void gui::RenderImGUI() noexcept
 
 		//add slider for overhead camera height
 		//Get memory at offset "Viva Pinata.exe"+5F63E8 to double
-		float cameraHeight = GetDouble("5F63E8");
+		float cameraHeight = MemHelp::GetDouble("5F63E8");
 		if (ImGui::SliderFloat("Overhead Camera Height", &cameraHeight, -5000.0f, 5000.0f)) {
-			SetDouble("5F63E8", cameraHeight);
+			MemHelp::SetDouble("5F63E8", cameraHeight);
 		}
 
 
-		bool bUnlimitedGardenSpace = IsPatchEnabled(UnlimitedGardenSpace);
+		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(UnlimitedGardenSpace);
 		if (ImGui::Checkbox("Unlimited Garden Space", &bUnlimitedGardenSpace)) {
-			SetPatch(UnlimitedGardenSpace, bUnlimitedGardenSpace);
+			MemHelp::SetPatch(UnlimitedGardenSpace, bUnlimitedGardenSpace);
 			if (bUnlimitedGardenSpace) {
 				std::cout << "Unlimited Garden Space enabled" << std::endl;
 			}
@@ -296,6 +296,105 @@ void gui::RenderImGUI() noexcept
 				PlayerDataPtr->Coins = coins;
 			}
 		}
+		// uint32_t slider
+		if (PlayerDataPtr) {
+			uint32_t level = PlayerDataPtr->Level;
+			if (ImGui::SliderInt("Player Level", reinterpret_cast<int*>(&level), 0, 512)) {
+				PlayerDataPtr->Level = level;
+			}
+		}
+		//int input for experiance
+		if (PlayerDataPtr) {
+			int experience = PlayerDataPtr->ExperiencePoints;
+			//add warning popup
+			if (ImGui::IsItemHovered()) {
+				ImGui::SetTooltip("Recommended to do this in the main menu to skip exp tick up");
+			}
+			if (ImGui::InputInt("Player Experience", &experience)) {
+				PlayerDataPtr->ExperiencePoints = experience;
+			}
+		}
+
+		// debug checkbox
+		if (ImGui::Checkbox("Debug Mode", &bDebug)) {
+			if (bDebug) {
+				std::cout << "Debug mode enabled" << std::endl;
+			}
+			else {
+				std::cout << "Debug mode disabled" << std::endl;
+			}
+		}
+		
+
+
+
+
+
+
+
+		//Debug values (Once set they will display)
+		ImGui::Separator();
+		if (PlayerDataPtr) {
+			ImGui::Text("PlayerData offset: %p", PlayerDataPtr);
+			ImGui::Text("PlayerID?: %d", PlayerDataPtr->PlayerID);
+			ImGui::Text("Coins: %d", PlayerDataPtr->Coins);
+			ImGui::Text("Player Level: %d", PlayerDataPtr->Level);
+		}
+		//camera data text
+		if (CameraDataPtr) {
+			ImGui::Text("Camera Mode: %d", CameraDataPtr->CameraMode);
+		}
+		if (I_a1 != 0)
+		{
+			ImGui::Text("a1: %d", I_a1);
+		}
+		if (I_a2 != 0)
+		{
+			ImGui::Text("a2: %d", I_a2);
+		}
+		if (I_a3 != 0)
+		{
+			ImGui::Text("a3: %d", I_a3);
+		}
+		if (I_a4 != 0)
+		{
+			ImGui::Text("a4: %d", I_a4);
+		}
+		if (F_a1 != 0)
+		{
+			ImGui::Text("a1: %f", F_a1);
+		}
+		if (F_a2 != 0)
+		{
+			ImGui::Text("a2: %f", F_a2);
+		}
+		if (F_a3 != 0)
+		{
+			ImGui::Text("a3: %f", F_a3);
+		}
+		if (F_a4 != 0)
+		{
+			ImGui::Text("a4: %f", F_a4);
+		}
+		if (C_a1 != 0)
+		{
+			ImGui::Text("a1: %s", C_a1);
+		}
+		if (C_a2 != 0)
+		{
+			ImGui::Text("a2: %s", C_a2);
+		}
+		if (C_a3 != 0)
+		{
+			ImGui::Text("a3: %s", C_a3);
+		}
+		if (C_a4 != 0)
+		{
+			ImGui::Text("a4: %s", C_a4);
+		}
+
+
+
 
 
 	}

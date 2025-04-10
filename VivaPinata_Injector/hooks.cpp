@@ -63,6 +63,18 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&SetPlayerCoinsOriginal)
 	)) throw std::runtime_error("Unable to hook SetPlayerCoins()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x0057B1F0),
+		&UpdateCameraByMode,
+		reinterpret_cast<void**>(&UpdateCameraByModeOriginal)
+	)) throw std::runtime_error("Unable to hook UpdateCameraByMode()");
+
+	//if (MH_CreateHook(
+	//	reinterpret_cast<void*>(0x0053B690),
+	//	&Test,
+	//	reinterpret_cast<void**>(&TestOriginal)
+	//)) throw std::runtime_error("Unable to hook Test()");
+
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
@@ -162,6 +174,29 @@ char __cdecl hooks::SetPlayerCoins(PlayerData* Player, uint32_t NewCoinsValue) n
 
 	std::cout << "SetPlayerCoins called with PlayerID: " << Player->PlayerID << " to Value: " << NewCoinsValue << std::endl;
 	PlayerDataPtr = Player;
+
+	return result;
+}
+
+int __cdecl hooks::UpdateCameraByMode(int a1, CameraData* a2) noexcept
+{
+	const auto result = UpdateCameraByModeOriginal(a1,a2);
+
+	CameraDataPtr = a2;
+
+
+	return result;
+}
+
+int __stdcall hooks::Test(int a1)
+{
+	int result = TestOriginal(a1);
+
+	__asm {
+		mov esi, result
+
+		mov eax, esi
+	}
 
 	return result;
 }

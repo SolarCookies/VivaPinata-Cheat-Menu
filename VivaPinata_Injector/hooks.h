@@ -49,7 +49,12 @@ namespace hooks
 	inline SetPlayerCoinsFn SetPlayerCoinsOriginal = nullptr;
 	char __cdecl SetPlayerCoins(PlayerData* Player, uint32_t NewCoinsValue) noexcept;
 
+	using UpdateCameraByModeFn = int(__cdecl*)(int, CameraData*) noexcept;
+	inline UpdateCameraByModeFn UpdateCameraByModeOriginal = nullptr;
+	int __cdecl UpdateCameraByMode(int a1, CameraData* a2) noexcept;
 
-
+	using TestFn = int(__stdcall*)(int);
+	inline TestFn TestOriginal = nullptr;
+	int __stdcall Test(int a1);
 
 }

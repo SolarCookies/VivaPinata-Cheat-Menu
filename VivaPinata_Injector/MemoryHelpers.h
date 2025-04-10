@@ -24,60 +24,76 @@ static struct ComplexMemoryPatch {
 	std::vector<SimpleMemoryPatch> patches;
 };
 
-inline static bool IsPatchEnabled(const SimpleMemoryPatch& patch) noexcept {
-	//check to see if bytes at address are equal to the enabled bytes
-	for (size_t i = 0; i < patch.enabledbytes.size(); ++i) {
-		if (*(byte*)(patch.address + i) != patch.enabledbytes[i]) {
-			return false;
-		}
-	}
-}
-inline static bool IsPatchEnabled(const ComplexMemoryPatch& patch) noexcept {
-	//check to see if bytes at address are equal to the enabled bytes
-	for (const auto& p : patch.patches) {
-		if (!IsPatchEnabled(p)) {
-			return false;
-		}
-	}
-	return true;
-}
+namespace MemHelp {
 
-inline static void SetPatch(SimpleMemoryPatch& patch, bool enable) noexcept {
-	if (enable) {
-		//set bytes at address to enabled bytes
+
+	inline static bool IsPatchEnabled(const SimpleMemoryPatch& patch) noexcept {
+		//check to see if bytes at address are equal to the enabled bytes
 		for (size_t i = 0; i < patch.enabledbytes.size(); ++i) {
-			*(byte*)(patch.address + i) = patch.enabledbytes[i];
+			if (*(byte*)(patch.address + i) != patch.enabledbytes[i]) {
+				return false;
+			}
 		}
 	}
-	else {
-		//set bytes at address to disabled bytes
-		for (size_t i = 0; i < patch.disabledbytes.size(); ++i) {
-			*(byte*)(patch.address + i) = patch.disabledbytes[i];
+	inline static bool IsPatchEnabled(const ComplexMemoryPatch& patch) noexcept {
+		//check to see if bytes at address are equal to the enabled bytes
+		for (const auto& p : patch.patches) {
+			if (!IsPatchEnabled(p)) {
+				return false;
+			}
 		}
+		return true;
 	}
-}
-inline static void SetPatch(ComplexMemoryPatch& patch, bool enable) noexcept {
-	if (enable) {
-		//set bytes at address to enabled bytes
-		for (SimpleMemoryPatch& p : patch.patches) {
-			SetPatch(p, true);
-		}
-	}
-	else {
-		//set bytes at address to disabled bytes
-		for (SimpleMemoryPatch& p : patch.patches) {
-			SetPatch(p, false);
-		}
-	}
-}
 
-inline static double GetDouble(const char* address) noexcept {
-   uintptr_t addressValue = GetVivaAddressPtr(address);
-   double value = *reinterpret_cast<double*>(addressValue);  
-   return value;  
-}
+	inline static void SetPatch(SimpleMemoryPatch& patch, bool enable) noexcept {
+		if (enable) {
+			//set bytes at address to enabled bytes
+			for (size_t i = 0; i < patch.enabledbytes.size(); ++i) {
+				*(byte*)(patch.address + i) = patch.enabledbytes[i];
+			}
+		}
+		else {
+			//set bytes at address to disabled bytes
+			for (size_t i = 0; i < patch.disabledbytes.size(); ++i) {
+				*(byte*)(patch.address + i) = patch.disabledbytes[i];
+			}
+		}
+	}
+	inline static void SetPatch(ComplexMemoryPatch& patch, bool enable) noexcept {
+		if (enable) {
+			//set bytes at address to enabled bytes
+			for (SimpleMemoryPatch& p : patch.patches) {
+				SetPatch(p, true);
+			}
+		}
+		else {
+			//set bytes at address to disabled bytes
+			for (SimpleMemoryPatch& p : patch.patches) {
+				SetPatch(p, false);
+			}
+		}
+	}
 
-inline static void SetDouble(const char* address, double value) noexcept {
-	uintptr_t addressValue = GetVivaAddressPtr(address);
-	*reinterpret_cast<double*>(addressValue) = value;
+	inline static double GetDouble(const char* address) noexcept {
+	   uintptr_t addressValue = GetVivaAddressPtr(address);
+	   double value = *reinterpret_cast<double*>(addressValue);  
+	   return value;  
+	}
+
+	inline static void SetDouble(const char* address, double value) noexcept {
+		uintptr_t addressValue = GetVivaAddressPtr(address);
+		*reinterpret_cast<double*>(addressValue) = value;
+	}
+
+	inline static int GetInt(const char* address) noexcept {
+		uintptr_t addressValue = GetVivaAddressPtr(address);
+		return *reinterpret_cast<int*>(addressValue);
+	}
+
+	inline static void SetInt(const char* address, int value) noexcept {
+		uintptr_t addressValue = GetVivaAddressPtr(address);
+		*reinterpret_cast<int*>(addressValue) = value;
+	}
+
+
 }
