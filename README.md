@@ -1,4 +1,10 @@
-# VivaPinata_Injector
- A dll that hooks to DirectX9 and creates a ImGUI window for cheats
+# VivaPinata Cheat Menu
+---
 
-At the moment ImGUI doesn't render (WIP)
+# Current Features:
+- Renders Custom ImGui UI
+- Coins
+- Level
+- Experience
+- Overhead Camera Height
+- Unlimited Garden Space
