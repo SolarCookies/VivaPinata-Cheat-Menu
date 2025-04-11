@@ -13,48 +13,30 @@ namespace hooks
 		return (*static_cast<void***>(thisptr))[index];
 	}
 
-	using EndSceneFn = long(__thiscall*)(void*, IDirect3DDevice9*) noexcept;
-	inline EndSceneFn EndSceneOriginal = nullptr;
-	long __stdcall EndScene(IDirect3DDevice9* device) noexcept;
+	// DirectX9 hooks
 
-	using ResetFn = HRESULT(__thiscall*)(void*, IDirect3DDevice9*, D3DPRESENT_PARAMETERS*) noexcept;
-	inline ResetFn ResetOriginal = nullptr;
-	HRESULT __stdcall Reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) noexcept;
-
-	// hook Present
-	using PresentFn = HRESULT(__stdcall*)(IDirect3DDevice9*, const RECT*, const RECT*, HWND, const RGNDATA*) noexcept;
-	inline PresentFn PresentOriginal = nullptr;
-	HRESULT __stdcall Present(IDirect3DDevice9* device, const RECT* src, const RECT* dest, HWND hwnd, const RGNDATA* region) noexcept;
-
-	using DrawIndexedPrimitiveFn = HRESULT(__stdcall*)(IDirect3DDevice9*, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
-	inline DrawIndexedPrimitiveFn DrawIndexedPrimitiveOriginal = nullptr;
-	HRESULT __stdcall DrawIndexedPrimitive(IDirect3DDevice9* device, D3DPRIMITIVETYPE type, INT baseVertexIndex, UINT minVertexIndex, UINT numVertices, UINT startIndex, UINT primCount) noexcept;
-
-	//bind begin scene
-	using BeginSceneFn = HRESULT(__stdcall*)(IDirect3DDevice9*) noexcept;
-	inline BeginSceneFn BeginSceneOriginal = nullptr;
-	HRESULT __stdcall BeginScene(IDirect3DDevice9* device) noexcept;
-
-	//bind  SetViewport 
+	// Binds to Set Viewport, This is the only function that i could find that would display the menu on the screen
+	//  - More research is needed to find a better function to bind to that renders ontop of the UI
 	using SetViewportFn = HRESULT(__stdcall*)(IDirect3DDevice9*, const D3DVIEWPORT9*) noexcept;
 	inline SetViewportFn SetViewportOriginal = nullptr;
 	HRESULT __stdcall SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport) noexcept;
 
-	//bind getviewport
-	using GetViewportFn = HRESULT(__stdcall*)(IDirect3DDevice9*, D3DVIEWPORT9*) noexcept;
-	inline GetViewportFn GetViewportOriginal = nullptr;
-	HRESULT __stdcall GetViewport(IDirect3DDevice9* device, D3DVIEWPORT9* viewport) noexcept;
+	//Viva Pinata.exe hooks
 
+	// Binds SetPlayerCoins at offset 0x0073FB80 
+	//  - We can use this funtion to get the player data offset 
+	//  - Runs when the save is loaded along with when the coins change
 	using SetPlayerCoinsFn = char(__cdecl*)(PlayerData*, uint32_t) noexcept;
 	inline SetPlayerCoinsFn SetPlayerCoinsOriginal = nullptr;
 	char __cdecl SetPlayerCoins(PlayerData* Player, uint32_t NewCoinsValue) noexcept;
 
+	// Binds UpdateCameraByMode at offset 0x0057B1F0
+	//  - We can use this funtion to get the camera data? offset
+	//  - Runs every game tick while the player is in the normal camera mode
+	//  - This is really only useful for ajusting the camera height offset in the top down view mode (At least for now)
 	using UpdateCameraByModeFn = int(__cdecl*)(int, CameraData*) noexcept;
 	inline UpdateCameraByModeFn UpdateCameraByModeOriginal = nullptr;
 	int __cdecl UpdateCameraByMode(int a1, CameraData* a2) noexcept;
 
-	using TestFn = int(__stdcall*)(int);
-	inline TestFn TestOriginal = nullptr;
-	int __stdcall Test(int a1);
 
 }

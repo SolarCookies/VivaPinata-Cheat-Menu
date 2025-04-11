@@ -49,40 +49,40 @@ struct EnityData
 	Vector3 Position;
 };
 
-inline bool bDebug = false; // Debug mode
+inline bool g_Debug = false; // Debug mode
 
-inline PlayerData* PlayerDataPtr;
-inline CameraData* CameraDataPtr;
-inline std::vector<EnityData> EntityData;
+inline PlayerData* g_PlayerDataPtr;
+inline CameraData* g_CameraDataPtr;
+inline std::vector<EnityData> g_EntityData;
 
 //temporary variables for testing funtion inputs on tick without flooding the console (Render these in imgui)
-inline int I_a1;
-inline int I_a2;
-inline int I_a3;
-inline int I_a4;
+inline int g_i1;
+inline int g_i2;
+inline int g_i3;
+inline int g_i4;
 
-inline float F_a1;
-inline float F_a2;
-inline float F_a3;
-inline float F_a4;
+inline float g_f1;
+inline float g_f2;
+inline float g_f3;
+inline float g_f4;
 
-inline char* C_a1;
-inline char* C_a2;
-inline char* C_a3;
-inline char* C_a4;
+inline char* g_c1;
+inline char* g_c2;
+inline char* g_c3;
+inline char* g_c4;
 
 // Function to set player coins
 typedef char(__cdecl* SetPlayerCoinsF)(struct PlayerData*, uint32_t) noexcept;
 inline SetPlayerCoinsF SetPlayerCoinsPtr = (SetPlayerCoinsF)GetVivaAddressPtr(0x0073FB80);
 inline static void SetPlayerCoins(uint32_t Value) {
-	if (PlayerDataPtr)
+	if (g_PlayerDataPtr)
 	{
-		SetPlayerCoinsPtr(PlayerDataPtr, Value);
+		SetPlayerCoinsPtr(g_PlayerDataPtr, Value);
 	}
 }
 
 //Unlimited Garden Space
-inline static SimpleMemoryPatch UnlimitedGardenSpace = {
+inline static SimpleMemoryPatch g_UnlimitedGardenSpace = {
 	0x7785D0,
 		{0x53, 0x56, 0x8B, 0x74, 0x24, 0x10},
 		{0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3}
@@ -92,7 +92,7 @@ inline static SimpleMemoryPatch UnlimitedGardenSpace = {
 // (This cant be set at runtime because its called at the beginning of the game,
 // so this is just a example of how to use a complex patch)
 //Though if we hook the main function we can set it before the game starts based on a config file
-inline static ComplexMemoryPatch WindowedMode = {
+inline static ComplexMemoryPatch g_WindowedMode = {
 	{
 		{
 			0x7D348D, 

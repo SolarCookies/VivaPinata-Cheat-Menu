@@ -13,42 +13,10 @@ void hooks::Setup()
 {
 	if (MH_Initialize())
 		throw std::runtime_error("Unable to initialize minhook");
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 42),
-		&EndScene,
-		reinterpret_cast<void**>(&EndSceneOriginal)
-	)) throw std::runtime_error("Unable to hook EndScene()");
+	
+	// DirectX9 hooks
 
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 16),
-		&Reset,
-		reinterpret_cast<void**>(&ResetOriginal)
-	)) throw std::runtime_error("Unable to hook Reset()");
-
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 17),
-		&Present,
-		reinterpret_cast<void**>(&PresentOriginal)
-	)) throw std::runtime_error("Unable to hook Present()");
-
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 82),
-		&DrawIndexedPrimitive,
-		reinterpret_cast<void**>(&DrawIndexedPrimitiveOriginal)
-	)) throw std::runtime_error("Unable to hook DrawIndexedPrimitive()");
-
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 41),
-		&BeginScene,
-		reinterpret_cast<void**>(&BeginSceneOriginal)
-	)) throw std::runtime_error("Unable to hook BeginScene()");
-
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 49),
-		&GetViewport,
-		reinterpret_cast<void**>(&GetViewportOriginal)
-	)) throw std::runtime_error("Unable to hook GetViewport()");
-
+	// Add SetViewport hook
 	if (MH_CreateHook(
 		VirtualFunction(gui::Ourdevice, 48),
 		&SetViewport,
@@ -56,29 +24,26 @@ void hooks::Setup()
 	)) throw std::runtime_error("Unable to hook SetViewport()");
 
 
-	//add setcoins hook
+	//Viva Pinata.exe hooks
+	
+	// Add SetPlayerCoins hook
 	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x0073FB80),
 		&SetPlayerCoins,
 		reinterpret_cast<void**>(&SetPlayerCoinsOriginal)
 	)) throw std::runtime_error("Unable to hook SetPlayerCoins()");
 
+	// Add UpdateCameraByMode hook
 	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x0057B1F0),
 		&UpdateCameraByMode,
 		reinterpret_cast<void**>(&UpdateCameraByModeOriginal)
 	)) throw std::runtime_error("Unable to hook UpdateCameraByMode()");
 
-	//if (MH_CreateHook(
-	//	reinterpret_cast<void*>(0x0053B690),
-	//	&Test,
-	//	reinterpret_cast<void**>(&TestOriginal)
-	//)) throw std::runtime_error("Unable to hook Test()");
 
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
-
 
 	gui::DestroyDirectX();
 }
@@ -90,39 +55,10 @@ void hooks::Destroy() noexcept
 	MH_Uninitialize();
 }
 
-long __stdcall hooks::EndScene(IDirect3DDevice9* device) noexcept{
-	const auto result = EndSceneOriginal(device, device);
+// DirectX9 hooks
 
-	return result;
-}
-
-HRESULT __stdcall hooks::Reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) noexcept{
-	const auto result = ResetOriginal(device, device, params);
-
-	return result;
-}
-
-HRESULT __stdcall hooks::Present(IDirect3DDevice9* device, const RECT* src, const RECT* dest, HWND hwnd, const RGNDATA* region) noexcept
-{
-
-	const auto result = PresentOriginal(device, src, dest, hwnd, region);
-
-	return result;
-}
-
-
-HRESULT __stdcall hooks::DrawIndexedPrimitive(IDirect3DDevice9* device, D3DPRIMITIVETYPE type, INT baseVertexIndex, UINT minVertexIndex, UINT numVertices, UINT startIndex, UINT primCount) noexcept {
-	
-
-	return DrawIndexedPrimitiveOriginal(device, type, baseVertexIndex, minVertexIndex, numVertices, startIndex, primCount);
-}
-
-HRESULT __stdcall hooks::BeginScene(IDirect3DDevice9* device) noexcept
-{
-
-	return BeginSceneOriginal(device);
-}
-
+// Binds to Set Viewport, This is the only function that i could find that would display the menu on the screen
+//  - More research is needed to find a better function to bind to that renders ontop of the UI
 HRESULT __stdcall hooks::SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport) noexcept
 {
 	const auto result = SetViewportOriginal(device, viewport);
@@ -158,45 +94,30 @@ HRESULT __stdcall hooks::SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT
 	return result;
 }
 
-HRESULT __stdcall hooks::GetViewport(IDirect3DDevice9* device, D3DVIEWPORT9* viewport) noexcept
-{
-	const auto result = GetViewportOriginal(device, viewport);
-
-	return result;
-}
-
-
 //Viva Pinata.exe hooks
 
+// Binds SetPlayerCoins at offset 0x0073FB80 
+//  - We can use this funtion to get the player data offset 
+//  - Runs when the save is loaded along with when the coins change
 char __cdecl hooks::SetPlayerCoins(PlayerData* Player, uint32_t NewCoinsValue) noexcept
 {
 	const auto result = SetPlayerCoinsOriginal(Player, NewCoinsValue);
 
 	std::cout << "SetPlayerCoins called with PlayerID: " << Player->PlayerID << " to Value: " << NewCoinsValue << std::endl;
-	PlayerDataPtr = Player;
+	g_PlayerDataPtr = Player;
 
 	return result;
 }
 
+// Binds UpdateCameraByMode at offset 0x0057B1F0
+//  - We can use this funtion to get the camera data? offset
+//  - Runs every game tick while the player is in the normal camera mode
+//  - This is really only useful for ajusting the camera height offset in the top down view mode (At least for now)
 int __cdecl hooks::UpdateCameraByMode(int a1, CameraData* a2) noexcept
 {
 	const auto result = UpdateCameraByModeOriginal(a1,a2);
 
-	CameraDataPtr = a2;
-
-
-	return result;
-}
-
-int __stdcall hooks::Test(int a1)
-{
-	int result = TestOriginal(a1);
-
-	__asm {
-		mov esi, result
-
-		mov eax, esi
-	}
+	g_CameraDataPtr = a2;
 
 	return result;
 }

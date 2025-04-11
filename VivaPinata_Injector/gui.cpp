@@ -267,19 +267,16 @@ void gui::Destroy() noexcept
 void gui::RenderImGUI() noexcept
 {
 
-	if (ImGui::Begin("Viva Pinata Mod Menu", &open)) {
+	if (ImGui::Begin("Viva Pinata Cheat Menu", &open)) {
 
-		//add slider for overhead camera height
-		//Get memory at offset "Viva Pinata.exe"+5F63E8 to double
 		float cameraHeight = MemHelp::GetDouble(0x005F63E8);
 		if (ImGui::SliderFloat("Overhead Camera Height", &cameraHeight, -5000.0f, 5000.0f)) {
 			MemHelp::SetDouble(0x005F63E8, cameraHeight);
 		}
 
-
-		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(UnlimitedGardenSpace);
+		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(g_UnlimitedGardenSpace);
 		if (ImGui::Checkbox("Unlimited Garden Space", &bUnlimitedGardenSpace)) {
-			MemHelp::SetPatch(UnlimitedGardenSpace, bUnlimitedGardenSpace);
+			MemHelp::SetPatch(g_UnlimitedGardenSpace, bUnlimitedGardenSpace);
 			if (bUnlimitedGardenSpace) {
 				std::cout << "Unlimited Garden Space enabled" << std::endl;
 			}
@@ -289,113 +286,107 @@ void gui::RenderImGUI() noexcept
 		}
 
 		// uint32_t slider
-		if (PlayerDataPtr) {
-			uint32_t coins = PlayerDataPtr->Coins;
+		if (g_PlayerDataPtr) {
+			uint32_t coins = g_PlayerDataPtr->Coins;
 			if (ImGui::SliderInt("Player Coins", reinterpret_cast<int*>(&coins), 0, 1000000000)) {
 				//SetPlayerCoins(coins);
-				PlayerDataPtr->Coins = coins;
+				g_PlayerDataPtr->Coins = coins;
 			}
 		}
+
 		// uint32_t slider
-		if (PlayerDataPtr) {
-			uint32_t level = PlayerDataPtr->Level;
+		if (g_PlayerDataPtr) {
+			uint32_t level = g_PlayerDataPtr->Level;
 			if (ImGui::SliderInt("Player Level", reinterpret_cast<int*>(&level), 0, 512)) {
-				PlayerDataPtr->Level = level;
+				g_PlayerDataPtr->Level = level;
 			}
 		}
+
 		//int input for experiance
-		if (PlayerDataPtr) {
-			int experience = PlayerDataPtr->ExperiencePoints;
+		if (g_PlayerDataPtr) {
+			int experience = g_PlayerDataPtr->ExperiencePoints;
 			//add warning popup
 			if (ImGui::IsItemHovered()) {
 				ImGui::SetTooltip("Recommended to do this in the main menu to skip exp tick up");
 			}
 			if (ImGui::InputInt("Player Experience", &experience)) {
-				PlayerDataPtr->ExperiencePoints = experience;
+				g_PlayerDataPtr->ExperiencePoints = experience;
 			}
 		}
 
 		// debug checkbox
-		if (ImGui::Checkbox("Debug Mode", &bDebug)) {
-			if (bDebug) {
+		if (ImGui::Checkbox("Debug Mode", &g_Debug)) {
+			if (g_Debug) {
 				std::cout << "Debug mode enabled" << std::endl;
 			}
 			else {
 				std::cout << "Debug mode disabled" << std::endl;
 			}
 		}
-		
 
-
-
-
-
-
-
-		//Debug values (Once set they will display)
-		ImGui::Separator();
-		if (PlayerDataPtr) {
-			ImGui::Text("PlayerData offset: %p", PlayerDataPtr);
-			ImGui::Text("PlayerID?: %d", PlayerDataPtr->PlayerID);
-			ImGui::Text("Coins: %d", PlayerDataPtr->Coins);
-			ImGui::Text("Player Level: %d", PlayerDataPtr->Level);
+		//Show debug values if enabled
+		if (g_Debug) {
+			//Debug values (Once set they will display)
+			ImGui::Separator();
+			if (g_PlayerDataPtr) {
+				ImGui::Text("PlayerData offset: %p", g_PlayerDataPtr);
+				ImGui::Text("PlayerID?: %d", g_PlayerDataPtr->PlayerID);
+				ImGui::Text("Coins: %d", g_PlayerDataPtr->Coins);
+				ImGui::Text("Player Level: %d", g_PlayerDataPtr->Level);
+			}
+			//camera data text
+			if (g_CameraDataPtr) {
+				ImGui::Text("Camera Mode: %d", g_CameraDataPtr->CameraMode);
+			}
+			if (g_i1 != 0)
+			{
+				ImGui::Text("i1: %d", g_i1);
+			}
+			if (g_i2 != 0)
+			{
+				ImGui::Text("i2: %d", g_i2);
+			}
+			if (g_i3 != 0)
+			{
+				ImGui::Text("i3: %d", g_i3);
+			}
+			if (g_i4 != 0)
+			{
+				ImGui::Text("i4: %d", g_i4);
+			}
+			if (g_f1 != 0.0f)
+			{
+				ImGui::Text("f1: %f", g_f1);
+			}
+			if (g_f2 != 0.0f)
+			{
+				ImGui::Text("f2: %f", g_f2);
+			}
+			if (g_f3 != 0.0f)
+			{
+				ImGui::Text("f3: %f", g_f3);
+			}
+			if (g_f4 != 0.0f)
+			{
+				ImGui::Text("f4: %f", g_f4);
+			}
+			if (g_c1 != "null")
+			{
+				ImGui::Text("c1: %s", g_c1);
+			}
+			if (g_c2 != "null")
+			{
+				ImGui::Text("c2: %s", g_c2);
+			}
+			if (g_c3 != "null")
+			{
+				ImGui::Text("c3: %s", g_c3);
+			}
+			if (g_c4 != "null")
+			{
+				ImGui::Text("c4: %s", g_c4);
+			}
 		}
-		//camera data text
-		if (CameraDataPtr) {
-			ImGui::Text("Camera Mode: %d", CameraDataPtr->CameraMode);
-		}
-		if (I_a1 != 0)
-		{
-			ImGui::Text("a1: %d", I_a1);
-		}
-		if (I_a2 != 0)
-		{
-			ImGui::Text("a2: %d", I_a2);
-		}
-		if (I_a3 != 0)
-		{
-			ImGui::Text("a3: %d", I_a3);
-		}
-		if (I_a4 != 0)
-		{
-			ImGui::Text("a4: %d", I_a4);
-		}
-		if (F_a1 != 0)
-		{
-			ImGui::Text("a1: %f", F_a1);
-		}
-		if (F_a2 != 0)
-		{
-			ImGui::Text("a2: %f", F_a2);
-		}
-		if (F_a3 != 0)
-		{
-			ImGui::Text("a3: %f", F_a3);
-		}
-		if (F_a4 != 0)
-		{
-			ImGui::Text("a4: %f", F_a4);
-		}
-		if (C_a1 != 0)
-		{
-			ImGui::Text("a1: %s", C_a1);
-		}
-		if (C_a2 != 0)
-		{
-			ImGui::Text("a2: %s", C_a2);
-		}
-		if (C_a3 != 0)
-		{
-			ImGui::Text("a3: %s", C_a3);
-		}
-		if (C_a4 != 0)
-		{
-			ImGui::Text("a4: %s", C_a4);
-		}
-
-
-
-
 
 	}
 	
@@ -420,12 +411,6 @@ LRESULT CALLBACK WindowProcess(
 			std::cout << "ImGUI Menu closed" << std::endl;
 		}
 	}
-
-
-
-	UINT newmessage;
-	WPARAM newwideParam;
-	LPARAM newlongParam;
 
 	if (gui::open) {
 		// pass messages to imgui
