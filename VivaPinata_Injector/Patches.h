@@ -10,7 +10,7 @@ struct PlayerData
 	uint32_t unknown2;
 	uint32_t ExperiencePoints;
 	uint32_t Level;
-	uint32_t unknown4; //Has something to do with towns people
+	uint32_t unknown4; //Has something to do with towns people?
 	uint32_t unknown5;
 	uint32_t unknown6;
 	uint32_t unknown7;
@@ -27,6 +27,9 @@ struct PlayerData
 	uint32_t unknown18;
 	uint32_t unknown19;
 	uint32_t unknown20;
+	uint32_t unknown21;
+	uint32_t unknown22;
+	uint32_t unknown23;
 };
 
 struct CameraData
