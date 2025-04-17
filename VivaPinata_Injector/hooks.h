@@ -38,5 +38,28 @@ namespace hooks
 	inline UpdateCameraByModeFn UpdateCameraByModeOriginal = nullptr;
 	int __cdecl UpdateCameraByMode(int a1, CameraData* a2) noexcept;
 
+	// Binds a print function at offset 0x0073FB80 
+	using PrintLineFn_00405740 = void(__cdecl*)(const char*, ...) noexcept;
+	inline PrintLineFn_00405740 PrintFunc_00405740_Original = nullptr;
+	void __cdecl PrintFunc_00405740(const char* format, ...) noexcept;
 
+	// Binds a print function at offset 0x0073FB80 
+	using PrintLineFn_00405790 = void(__cdecl*)(const char*, ...) noexcept;
+	inline PrintLineFn_00405790 PrintFunc_00405790_Original = nullptr;
+	void __cdecl PrintFunc_00405790(const char* format, ...) noexcept;
+
+	// Binds a print function at offset 0x004055e0
+	using PrintLineFn_004055e0 = void(__cdecl*)(const char*, ...) noexcept;
+	inline PrintLineFn_004055e0 PrintFunc_004055e0_Original = nullptr;
+	void __cdecl PrintFunc_004055e0(const char* format, ...) noexcept;
+
+	// Binds a print function at offset 0x00402bf0
+	using PrintLineFn_00402bf0 = void(__cdecl*)(const char*, ...) noexcept;
+	inline PrintLineFn_00402bf0 PrintFunc_00402bf0_Original = nullptr;
+	void __cdecl PrintFunc_00402bf0(const char* format, ...) noexcept;
+
+	// Binds a print function at offset 0x00851720
+	using PrintLineFn_00851720 = void(__cdecl*)(wchar_t*, rsize_t, const wchar_t*, ...) noexcept;
+	inline PrintLineFn_00851720 PrintFunc_00851720_Original = nullptr;
+	void __cdecl PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wchar_t* format, ...) noexcept;
 }

@@ -1,5 +1,6 @@
 #include "hooks.h"
 
+#include <wchar.h>
 #include <stdexcept>
 #include <intrin.h>
 
@@ -40,6 +41,37 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&UpdateCameraByModeOriginal)
 	)) throw std::runtime_error("Unable to hook UpdateCameraByMode()");
 
+	// Hook the various print functions.
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00405740),
+		&PrintFunc_00405740,
+		reinterpret_cast<void**>(&PrintFunc_00405740_Original)
+	)) throw std::runtime_error("Unable to hook PrintFunc_00405740()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00405790),
+		&PrintFunc_00405790,
+		reinterpret_cast<void**>(&PrintFunc_00405790_Original)
+	)) throw std::runtime_error("Unable to hook PrintFunc_00405790()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x004055e0),
+		&PrintFunc_004055e0,
+		reinterpret_cast<void**>(&PrintFunc_004055e0_Original)
+	)) throw std::runtime_error("Unable to hook PrintFunc_004055e0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00402bf0),
+		&PrintFunc_00402bf0,
+		reinterpret_cast<void**>(&PrintFunc_00402bf0_Original)
+	)) throw std::runtime_error("Unable to hook PrintFunc_00402bf0()");
+
+	// Not an actual print function.
+	//if (MH_CreateHook(
+	//	reinterpret_cast<void*>(0x00851720),
+	//	&PrintFunc_00851720,
+	//	reinterpret_cast<void**>(&PrintFunc_00851720_Original)
+	//)) throw std::runtime_error("Unable to hook PrintFunc_00851720()");
 
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
@@ -122,3 +154,71 @@ int __cdecl hooks::UpdateCameraByMode(int a1, CameraData* a2) noexcept
 	return result;
 }
 
+void __cdecl hooks::PrintFunc_00405790(const char* format, ...) noexcept
+{
+	PrintFunc_00405790_Original(format);
+
+	char strToPrint[512];
+	va_list argptr;
+	va_start(argptr, format);
+	vsprintf(strToPrint, format, argptr);
+	va_end(argptr);
+
+	std::cout << strToPrint << std::endl;
+}
+
+void __cdecl hooks::PrintFunc_004055e0(const char* format, ...) noexcept
+{
+	PrintFunc_004055e0_Original(format);
+
+	char strToPrint[512];
+	va_list argptr;
+	va_start(argptr, format);
+	vsprintf(strToPrint, format, argptr);
+	va_end(argptr);
+
+	std::cout << strToPrint << std::endl;
+}
+
+void __cdecl hooks::PrintFunc_00402bf0(const char* format, ...) noexcept
+{
+	PrintFunc_00402bf0_Original(format);
+
+	char strToPrint[512];
+	va_list argptr;
+	va_start(argptr, format);
+	vsprintf(strToPrint, format, argptr);
+	va_end(argptr);
+
+	std::cout << strToPrint << std::endl;
+}
+
+void __cdecl hooks::PrintFunc_00405740(const char* format, ...) noexcept
+{
+	PrintFunc_00405740_Original(format);
+
+	char strToPrint[512];
+	va_list argptr;
+	va_start(argptr, format);
+	vsprintf(strToPrint, format, argptr);
+	va_end(argptr);
+
+	std::cout << strToPrint << std::endl;
+}
+
+// Not actually a function for printing, it's used for parsing file strings.
+void __cdecl hooks::PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wchar_t* format, ...) noexcept
+{
+	va_list argptr;
+	va_start(argptr, format);
+	int output = _vsnwprintf_s(buffer, bufsz, bufsz - 1, format, argptr);
+	va_end(argptr);
+
+	if (output == -1) {
+		buffer[bufsz - 1] = '\0';
+	}
+
+	std::wcout << buffer << std::endl;
+
+	//PrintFunc_00851720_Original(buffer, bufsz, buffer); Don't need to call the original function, hook does the same job.
+}
