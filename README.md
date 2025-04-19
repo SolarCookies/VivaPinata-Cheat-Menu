@@ -8,6 +8,7 @@
 - Experience
 - Overhead Camera Height
 - Unlimited Garden Space
+- Outputs Viva Pinata Logs to console
 
 ---
 
