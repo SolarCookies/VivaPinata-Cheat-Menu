@@ -6,6 +6,8 @@
 
 #include <stdexcept>
 
+#include "Menu.h"
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
 	HWND window,
 	UINT message,
@@ -269,142 +271,7 @@ void gui::RenderImGUI() noexcept
 
 	if (ImGui::Begin("Viva Pinata Cheat Menu", &open)) {
 
-		float cameraHeight = MemHelp::GetDouble(0x005F63E8);
-		if (ImGui::SliderFloat("Overhead Camera Height", &cameraHeight, -5000.0f, 5000.0f)) {
-			MemHelp::SetDouble(0x005F63E8, cameraHeight);
-		}
-
-		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(g_UnlimitedGardenSpace);
-		if (ImGui::Checkbox("Unlimited Garden Space", &bUnlimitedGardenSpace)) {
-			MemHelp::SetPatch(g_UnlimitedGardenSpace, bUnlimitedGardenSpace);
-			if (bUnlimitedGardenSpace) {
-				std::cout << "Unlimited Garden Space enabled" << std::endl;
-			}
-			else {
-				std::cout << "Unlimited Garden Space disabled" << std::endl;
-			}
-		}
-		// Easy Break Sick Pinata
-		if (ImGui::Checkbox("Instant Break Sick Pinata", &g_EasyBreakSickPinata)) {
-			if (g_EasyBreakSickPinata) {
-				std::cout << "Instant Break Sick Pinata enabled" << std::endl;
-			}
-			else {
-				std::cout << "Instant Break Sick Pinata disabled" << std::endl;
-			}
-		}
-		// Easy Break Items
-		if (ImGui::Checkbox("Instant Break Items", &g_EasyBreakItems)) {
-			if (g_EasyBreakItems) {
-				std::cout << "Instant Break Items enabled" << std::endl;
-			}
-			else {
-				std::cout << "Instant Break Items disabled" << std::endl;
-			}
-		}
-
-		// uint32_t slider
-		if (g_PlayerDataPtr) {
-			uint32_t coins = g_PlayerDataPtr->Coins;
-			if (ImGui::SliderInt("Player Coins", reinterpret_cast<int*>(&coins), 0, 1000000000)) {
-				//SetPlayerCoins(coins);
-				g_PlayerDataPtr->Coins = coins;
-			}
-		}
-
-		// uint32_t slider
-		if (g_PlayerDataPtr) {
-			uint32_t level = g_PlayerDataPtr->Level;
-			if (ImGui::SliderInt("Player Level", reinterpret_cast<int*>(&level), 0, 512)) {
-				g_PlayerDataPtr->Level = level;
-			}
-		}
-
-		//int input for experiance
-		if (g_PlayerDataPtr) {
-			int experience = g_PlayerDataPtr->ExperiencePoints;
-			//add warning popup
-			if (ImGui::IsItemHovered()) {
-				ImGui::SetTooltip("Recommended to do this in the main menu to skip exp tick up");
-			}
-			if (ImGui::InputInt("Player Experience", &experience)) {
-				g_PlayerDataPtr->ExperiencePoints = experience;
-			}
-		}
-
-		// debug checkbox
-		if (ImGui::Checkbox("Debug Mode", &g_Debug)) {
-			if (g_Debug) {
-				std::cout << "Debug mode enabled" << std::endl;
-			}
-			else {
-				std::cout << "Debug mode disabled" << std::endl;
-			}
-		}
-
-		//Show debug values if enabled
-		if (g_Debug) {
-			//Debug values (Once set they will display)
-			ImGui::Separator();
-			if (g_PlayerDataPtr) {
-				ImGui::Text("PlayerData offset: %p", g_PlayerDataPtr);
-				ImGui::Text("PlayerID?: %d", g_PlayerDataPtr->PlayerID);
-				ImGui::Text("Coins: %d", g_PlayerDataPtr->Coins);
-				ImGui::Text("Player Level: %d", g_PlayerDataPtr->Level);
-			}
-			//camera data text
-			if (g_CameraDataPtr) {
-				ImGui::Text("Camera Mode: %d", g_CameraDataPtr->CameraMode);
-			}
-			if (g_i1 != 0)
-			{
-				ImGui::Text("i1: %d", g_i1);
-			}
-			if (g_i2 != 0)
-			{
-				ImGui::Text("i2: %d", g_i2);
-			}
-			if (g_i3 != 0)
-			{
-				ImGui::Text("i3: %d", g_i3);
-			}
-			if (g_i4 != 0)
-			{
-				ImGui::Text("i4: %d", g_i4);
-			}
-			if (g_f1 != 0.0f)
-			{
-				ImGui::Text("f1: %f", g_f1);
-			}
-			if (g_f2 != 0.0f)
-			{
-				ImGui::Text("f2: %f", g_f2);
-			}
-			if (g_f3 != 0.0f)
-			{
-				ImGui::Text("f3: %f", g_f3);
-			}
-			if (g_f4 != 0.0f)
-			{
-				ImGui::Text("f4: %f", g_f4);
-			}
-			if (g_c1 != "null")
-			{
-				ImGui::Text("c1: %s", g_c1);
-			}
-			if (g_c2 != "null")
-			{
-				ImGui::Text("c2: %s", g_c2);
-			}
-			if (g_c3 != "null")
-			{
-				ImGui::Text("c3: %s", g_c3);
-			}
-			if (g_c4 != "null")
-			{
-				ImGui::Text("c4: %s", g_c4);
-			}
-		}
+		menu::RenderMenu();
 
 	}
 	
