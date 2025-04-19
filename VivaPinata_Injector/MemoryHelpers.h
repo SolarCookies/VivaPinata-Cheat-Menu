@@ -36,6 +36,7 @@ static struct ComplexMemoryPatch {
 	std::vector<SimpleMemoryPatch> patches;
 };
 
+
 namespace MemHelp {
 
 	//Checks if the patch is enabled by checking if the bytes at the address are equal to the enabled bytes
