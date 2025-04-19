@@ -73,6 +73,13 @@ void hooks::Setup()
 	//	reinterpret_cast<void**>(&PrintFunc_00851720_Original)
 	//)) throw std::runtime_error("Unable to hook PrintFunc_00851720()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00551640),
+		&PinataDamage_00551640,
+		reinterpret_cast<void**>(&PinataDamage_00551640_Original)
+	)) throw std::runtime_error("Unable to hook PinataDamage_00551640()");
+
+
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
@@ -221,4 +228,20 @@ void __cdecl hooks::PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wch
 	std::wcout << buffer << std::endl;
 
 	//PrintFunc_00851720_Original(buffer, bufsz, buffer); Don't need to call the original function, hook does the same job.
+}
+
+//Calls when the pinata takes damage by the player (Maybe also other things?)
+int __cdecl hooks::PinataDamage_00551640(int a1, int Damage) noexcept
+{
+	int result;
+	if (g_EasyBreakSickPinata) {
+		std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
+		result = PinataDamage_00551640_Original(a1, 1000);
+	}
+	else {
+		result = PinataDamage_00551640_Original(a1, Damage);
+		std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
+	}
+	
+	return result;
 }

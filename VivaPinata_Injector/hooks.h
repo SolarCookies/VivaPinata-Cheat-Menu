@@ -62,4 +62,8 @@ namespace hooks
 	using PrintLineFn_00851720 = void(__cdecl*)(wchar_t*, rsize_t, const wchar_t*, ...) noexcept;
 	inline PrintLineFn_00851720 PrintFunc_00851720_Original = nullptr;
 	void __cdecl PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wchar_t* format, ...) noexcept;
+
+	using PinataDamageFn_00551640 = int(__cdecl*)(int a1, int Damage) noexcept;
+	inline PinataDamageFn_00551640 PinataDamage_00551640_Original = nullptr;
+	int __cdecl PinataDamage_00551640(int a1, int Damage) noexcept;
 }

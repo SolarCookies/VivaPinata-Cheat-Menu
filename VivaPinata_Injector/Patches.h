@@ -54,6 +54,8 @@ struct EnityData
 
 inline bool g_Debug = false; // Debug mode
 
+inline bool g_EasyBreakSickPinata = false;
+
 inline PlayerData* g_PlayerDataPtr;
 inline CameraData* g_CameraDataPtr;
 inline std::vector<EnityData> g_EntityData;

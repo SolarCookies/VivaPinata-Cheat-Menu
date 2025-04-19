@@ -284,6 +284,15 @@ void gui::RenderImGUI() noexcept
 				std::cout << "Unlimited Garden Space disabled" << std::endl;
 			}
 		}
+		// Easy Break Sick Pinata
+		if (ImGui::Checkbox("Instant Break Sick Pinata", &g_EasyBreakSickPinata)) {
+			if (g_EasyBreakSickPinata) {
+				std::cout << "Instant Break Sick Pinata enabled" << std::endl;
+			}
+			else {
+				std::cout << "Instant Break Sick Pinata disabled" << std::endl;
+			}
+		}
 
 		// uint32_t slider
 		if (g_PlayerDataPtr) {
