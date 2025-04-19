@@ -66,4 +66,8 @@ namespace hooks
 	using PinataDamageFn_00551640 = int(__cdecl*)(int a1, int Damage) noexcept;
 	inline PinataDamageFn_00551640 PinataDamage_00551640_Original = nullptr;
 	int __cdecl PinataDamage_00551640(int a1, int Damage) noexcept;
+
+	using ItemDamageFn_00751B30 = int(__cdecl*)(int a1, int Damage, int a3) noexcept;
+	inline ItemDamageFn_00751B30 ItemDamage_00751B30_Original = nullptr;
+	int __cdecl ItemDamage_00751B30(int a1, int Damage, int a3) noexcept;
 }

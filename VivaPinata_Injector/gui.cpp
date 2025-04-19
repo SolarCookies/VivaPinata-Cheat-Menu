@@ -293,6 +293,15 @@ void gui::RenderImGUI() noexcept
 				std::cout << "Instant Break Sick Pinata disabled" << std::endl;
 			}
 		}
+		// Easy Break Items
+		if (ImGui::Checkbox("Instant Break Items", &g_EasyBreakItems)) {
+			if (g_EasyBreakItems) {
+				std::cout << "Instant Break Items enabled" << std::endl;
+			}
+			else {
+				std::cout << "Instant Break Items disabled" << std::endl;
+			}
+		}
 
 		// uint32_t slider
 		if (g_PlayerDataPtr) {

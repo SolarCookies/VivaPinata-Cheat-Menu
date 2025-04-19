@@ -79,6 +79,11 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&PinataDamage_00551640_Original)
 	)) throw std::runtime_error("Unable to hook PinataDamage_00551640()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00751B30),
+		&ItemDamage_00751B30,
+		reinterpret_cast<void**>(&ItemDamage_00751B30_Original)
+	)) throw std::runtime_error("Unable to hook ItemDamage_00751B30()");
 
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
@@ -243,5 +248,20 @@ int __cdecl hooks::PinataDamage_00551640(int a1, int Damage) noexcept
 		std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
 	}
 	
+	return result;
+}
+
+//Calls when player damages a item
+int __cdecl hooks::ItemDamage_00751B30(int a1, int Damage, int a3) noexcept
+{
+	int result;
+	if (g_EasyBreakItems) {
+		std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
+		result = ItemDamage_00751B30_Original(a1, 1000, a3);
+	}
+	else {
+		result = ItemDamage_00751B30_Original(a1, Damage, a3);
+		std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
+	}
 	return result;
 }
