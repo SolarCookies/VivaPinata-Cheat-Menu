@@ -21,7 +21,7 @@ namespace hooks
 	inline SetViewportFn SetViewportOriginal = nullptr;
 	HRESULT __stdcall SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport) noexcept;
 
-	//Viva Pinata.exe hooks
+	//Viva Piñata.exe hooks
 
 	// Binds SetPlayerCoins at offset 0x0073FB80 
 	//  - We can use this funtion to get the player data offset 
@@ -70,4 +70,20 @@ namespace hooks
 	using ItemDamageFn_00751B30 = int(__cdecl*)(int a1, int Damage, int a3) noexcept;
 	inline ItemDamageFn_00751B30 ItemDamage_00751B30_Original = nullptr;
 	int __cdecl ItemDamage_00751B30(int a1, int Damage, int a3) noexcept;
+
+	using GetItemNameFn_00745AD0 = wchar_t*(__cdecl*)(int ID, DWORD* a2, int a3) noexcept;
+	inline GetItemNameFn_00745AD0 GetItemName_00745AD0_Original = nullptr;
+	wchar_t* __cdecl GetItemName_00745AD0(int ID, DWORD* a2, int a3) noexcept;
+
+	using GetItemNameParentFn_00745BE0 = const char* (__cdecl*)(int ID) noexcept;
+	inline GetItemNameParentFn_00745BE0 GetItemNameParent_00745BE0_Original = nullptr;
+	const char* __cdecl GetItemNameParent_00745BE0(int ID) noexcept;
+
+	using GetItemNameParent2Fn_00745B50 = const char* (__cdecl*)(int ID) noexcept;
+	inline GetItemNameParent2Fn_00745B50 GetItemNameParent2_00745B50_Original = nullptr;
+	const char* __cdecl GetItemNameParent2_00745B50(int ID) noexcept;
+
+	using UnknownFn_00727E10 = int(__cdecl*)(int a1) noexcept;
+	inline UnknownFn_00727E10 Unknown_00727E10_Original = nullptr;
+	int __cdecl Unknown_00727E10(int a1) noexcept;
 }

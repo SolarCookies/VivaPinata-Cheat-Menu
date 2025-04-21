@@ -3,6 +3,7 @@
 #include <wchar.h>
 #include <stdexcept>
 #include <intrin.h>
+#include <fstream>
 
 #include "minhook/minhook.h"
 
@@ -25,7 +26,7 @@ void hooks::Setup()
 	)) throw std::runtime_error("Unable to hook SetViewport()");
 
 
-	//Viva Pinata.exe hooks
+	//Viva Piñata.exe hooks
 	
 	// Add SetPlayerCoins hook
 	if (MH_CreateHook(
@@ -85,6 +86,24 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&ItemDamage_00751B30_Original)
 	)) throw std::runtime_error("Unable to hook ItemDamage_00751B30()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00745AD0),
+		&GetItemName_00745AD0,
+		reinterpret_cast<void**>(&GetItemName_00745AD0_Original)
+	)) throw std::runtime_error("Unable to hook GetItemName_00745AD0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00745BE0),
+		&GetItemNameParent_00745BE0,
+		reinterpret_cast<void**>(&GetItemNameParent_00745BE0_Original)
+	)) throw std::runtime_error("Unable to hook GetItemNameParent_00745BE0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00727E10),
+		&Unknown_00727E10,
+		reinterpret_cast<void**>(&Unknown_00727E10_Original)
+	)) throw std::runtime_error("Unable to hook Unknown_00727E10()");
+
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
@@ -138,7 +157,7 @@ HRESULT __stdcall hooks::SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT
 	return result;
 }
 
-//Viva Pinata.exe hooks
+//Viva Piñata.exe hooks
 
 // Binds SetPlayerCoins at offset 0x0073FB80 
 //  - We can use this funtion to get the player data offset 
@@ -235,7 +254,7 @@ void __cdecl hooks::PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wch
 	//PrintFunc_00851720_Original(buffer, bufsz, buffer); Don't need to call the original function, hook does the same job.
 }
 
-//Calls when the pinata takes damage by the player (Maybe also other things?)
+//Calls when the Piñata takes damage by the player (Maybe also other things?)
 int __cdecl hooks::PinataDamage_00551640(int a1, int Damage) noexcept
 {
 	int result;
@@ -263,5 +282,60 @@ int __cdecl hooks::ItemDamage_00751B30(int a1, int Damage, int a3) noexcept
 		result = ItemDamage_00751B30_Original(a1, Damage, a3);
 		std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
 	}
+	return result;
+}
+
+wchar_t* __cdecl hooks::GetItemName_00745AD0(int ID, DWORD* a2, int a3) noexcept
+{
+	wchar_t* result;
+
+	result = GetItemName_00745AD0_Original(ID, a2, a3);
+
+	if (!result) {
+		return result;
+	}
+
+	//std::wcout << L"ID: " << ID << L" Name: " << result << std::endl;
+	//write to file
+	//std::string Line = "{" + std::to_string(ID) + ", " + MemHelp::WCharToString(result) + "}," + "\n";
+	//std::ofstream filestream("Log.txt", std::ios::app);
+	//MemHelp::print(Line, filestream);
+	//filestream.close();
+
+
+	return result;
+}
+
+const char* __cdecl hooks::GetItemNameParent_00745BE0(int ID) noexcept
+{
+	const char* result;
+
+	std::cout << "GetItemNameParent_00745BE0 called" << std::endl;
+	/*
+	if(!Update){
+		for (int i = 0; i < 5000; i++) {
+			if (Unknown_00727E10(i) == 0) {
+				//std::cout << "Invalid ID" << std::endl;
+			}
+			else {
+				result = GetItemNameParent_00745BE0_Original(i);
+			}
+		}
+	}
+	Update = true;
+	*/
+
+	result = GetItemNameParent_00745BE0_Original(ID);
+	if (!result) {
+		return result;
+	}
+	std::cout << "GetItemNameParent_00745BE0 called with ID: " << ID << " and result: " << result << std::endl;
+	return result;
+}
+
+int __cdecl hooks::Unknown_00727E10(int a1) noexcept
+{
+	int result = Unknown_00727E10_Original(a1);
+	//std::cout << "Unknown_00727E10 called with a1: " << a1 << " and result: " << result << std::endl;
 	return result;
 }

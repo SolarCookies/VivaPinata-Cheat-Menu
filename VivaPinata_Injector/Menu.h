@@ -6,6 +6,7 @@
 
 #include "MemoryHelpers.h"
 #include "Patches.h"
+#include "hooks.h"
 
 #include <iostream>
 
@@ -17,7 +18,7 @@ namespace menu {
 		Player, //Shows Player Options/Mods
 		Garden, //Shows Garden Options/Mods
 		Items, //Shows Item Options/Mods
-		Enities, //Shows Pinata/NPC Options/Mods
+		Enities, //Shows Piñata/NPC Options/Mods
 		MenuSettings, //Shows Menu Options, Hotkeys, theme, etc
 		About //Shows the crdits and info about the mod
 	};
@@ -93,7 +94,7 @@ namespace menu {
 
 	static inline void RenderEnities() {
 
-		// Easy Break Sick Pinata
+		// Easy Break Sick Piñata
 		if (ImGui::Checkbox("Instant Break Sick Pinata", &g_EasyBreakSickPinata)) {
 			if (g_EasyBreakSickPinata) {
 				std::cout << "Instant Break Sick Pinata enabled" << std::endl;
@@ -101,6 +102,49 @@ namespace menu {
 			else {
 				std::cout << "Instant Break Sick Pinata disabled" << std::endl;
 			}
+		}
+
+		
+		//Get current hunted Piñata from EE8510 
+		uint32_t huntedPinata = MemHelp::GetInt(0xAE8510);
+		const char* hunted = std::to_string(huntedPinata).c_str();
+
+		for (PinataIDs Piñata : g_PinataIDs) {
+			if (Piñata.ID == huntedPinata) {
+				hunted = Piñata.Name;
+				break;
+			}
+		}
+
+
+		if (g_Debug) {
+			if (ImGui::InputInt("Hunted Pinata ID", reinterpret_cast<int*>(&huntedPinata))) {
+				if (hooks::Unknown_00727E10(huntedPinata) == 0) {
+					std::cout << "Invalid ID" << std::endl;
+				}
+				else {
+					MemHelp::SetInt(0xAE8510, huntedPinata);
+					MemHelp::SetInt(0xAE8514, huntedPinata);
+					MemHelp::SetInt(0xAE8518, huntedPinata);
+				}
+			}
+		}
+
+
+
+		//Add dropdown for hunted Piñata
+		if (ImGui::BeginCombo("Hunted Pinata", hunted)) {
+			//for each Piñata in the hunted Piñata 
+			for (PinataIDs Pinata : g_PinataIDs) {
+				if (ImGui::Selectable(Pinata.Name)) {
+					//set the hunted Piñata
+					std::cout << "Hunted Piñata: " << Pinata.Name << std::endl;
+					MemHelp::SetInt(0xAE8510, Pinata.ID);
+					MemHelp::SetInt(0xAE8514, Pinata.ID);
+					MemHelp::SetInt(0xAE8518, Pinata.ID);
+				}
+			}
+			ImGui::EndCombo();
 		}
 
 	}
@@ -201,6 +245,7 @@ namespace menu {
         ImGui::Text("Overhead Camera Height");  
         ImGui::Text("Instant Break Items");  
         ImGui::Text("Instant Break Sick Pinata");  
+		ImGui::Text("Shop Item ID List");
         ImGui::EndChild();
 
 		ImGui::SetWindowFontScale(1.0f);
@@ -209,6 +254,7 @@ namespace menu {
 		ImGui::BeginChild("ScrollableRegion2", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		ImGui::Text("Print Function hooks");
 		ImGui::EndChild();
+
 		ImGui::SetWindowFontScale(1.0f);
 		ImGui::Text("Jacob ");
 		ImGui::SetWindowFontScale(0.6f);
@@ -216,16 +262,13 @@ namespace menu {
 		ImGui::Text("Unlimited Garden Space");
 		ImGui::EndChild();
 
-		/* //in order to add these patches we will need a way to insert assembly by allocating memory and jumping to it then returning to the original code
 		ImGui::SetWindowFontScale(1.0f);
 		ImGui::Text("u/Little-Business-9508 ");
 		ImGui::SetWindowFontScale(0.6f);
 		ImGui::BeginChild("ScrollableRegion4", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		ImGui::Text("Willy Quick Build");
-		ImGui::Text("Instant Pinata Hunts/Mission");
-		ImGui::Text("Gretchen Always Has Pinata");
+		ImGui::Text("Gretchen Hunted Pinata Offsets");
 		ImGui::EndChild();
-		*/
+		
 
 
 		ImGui::SetWindowFontScale(1.0f);

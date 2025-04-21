@@ -3,14 +3,15 @@
 #include <libloaderapi.h>  
 #include <cstdlib>
 #include <vector>
+#include <string>
 
 
-//Gets the address of the viva pinata.exe module and add the address offset to it
+//Gets the address of the viva Piñata.exe module and add the address offset to it
 inline static uintptr_t GetVivaAddressPtr(uintptr_t address) noexcept {
 
 	HMODULE moduleHandle = GetModuleHandleA("Viva Pinata.exe");
 
-	//Make sure the viva pinata module handle is valid before using it
+	//Make sure the viva Piñata module handle is valid before using it
 	if (!moduleHandle) {
 		throw std::runtime_error("Failed to get Viva Pinata.exe' module handle");
 	}
@@ -18,7 +19,7 @@ inline static uintptr_t GetVivaAddressPtr(uintptr_t address) noexcept {
 	//Convert the module handle to a pointer
 	uintptr_t VivaPinataBaseAddress = reinterpret_cast<uintptr_t>(moduleHandle);
 
-	//Add the address offset to the base address of viva pinata
+	//Add the address offset to the base address of viva Piñata
 	uintptr_t addressValue = VivaPinataBaseAddress + address;
 
 	return addressValue;
@@ -39,10 +40,23 @@ static struct ComplexMemoryPatch {
 
 namespace MemHelp {
 
+	// Helper function to convert WCHAR* to std::string
+	inline std::string WCharToString(const WCHAR* wstr) {
+		std::wstring ws(wstr);
+		return std::string(ws.begin(), ws.end());
+	}
+
+	// Helper function to convert std::string to WCHAR*
+	inline void print(const std::string str, std::ostream& output)
+	{
+		output << str;
+		std::cout << str;
+	}
+
 	//Checks if the patch is enabled by checking if the bytes at the address are equal to the enabled bytes
 	inline static bool IsPatchEnabled(const SimpleMemoryPatch& patch) noexcept {
 
-		//Gets the address of the patch relative to the module handle of viva pinata
+		//Gets the address of the patch relative to the module handle of viva Piñata
 		uintptr_t addressValue = GetVivaAddressPtr(patch.address);
 
 		//For each bytes in the enabled patch, check to see if its equal to the bytes at the address if not we know the patch is not enabled
@@ -106,13 +120,13 @@ namespace MemHelp {
 		}
 	}
 
-	//Gets Double at the address relative to the module handle of viva pinata
+	//Gets Double at the address relative to the module handle of viva Piñata
 	inline static double GetDouble(uintptr_t address) noexcept {
 		uintptr_t addressValue = GetVivaAddressPtr(address);
 		return *reinterpret_cast<double*>(addressValue);
 	}
 
-	//Sets Double at the address relative to the module handle of viva pinata
+	//Sets Double at the address relative to the module handle of viva Piñata
 	inline static void SetDouble(uintptr_t address, double value) noexcept {
 		uintptr_t addressValue = GetVivaAddressPtr(address);
 		//make address writable
@@ -124,13 +138,13 @@ namespace MemHelp {
 		VirtualProtect(reinterpret_cast<LPVOID>(addressValue), sizeof(double), oldProtect, &oldProtect);
 	}
 
-	//Gets Int at the address relative to the module handle of viva pinata
+	//Gets Int at the address relative to the module handle of viva Piñata
 	inline static int GetInt(uintptr_t address) noexcept {
 		uintptr_t addressValue = GetVivaAddressPtr(address);
 		return *reinterpret_cast<int*>(addressValue);
 	}
 
-	//Sets Int at the address relative to the module handle of viva pinata
+	//Sets Int at the address relative to the module handle of viva Piñata
 	inline static void SetInt(uintptr_t address, int value) noexcept {
 		uintptr_t addressValue = GetVivaAddressPtr(address);
 		//make address writable
