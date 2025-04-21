@@ -1,6 +1,14 @@
 # VivaPinata Cheat Menu
 ![Screenshot 2025-04-10 101732](https://github.com/user-attachments/assets/9f3db846-3d07-490a-84ea-80ec0a993b07)
 
+
+
+https://github.com/user-attachments/assets/36d6c3e4-4c06-449b-bdfc-d7de614dc627
+
+
+![image](https://github.com/user-attachments/assets/992052fa-219b-4786-b79c-8153f6b3f7f3)
+
+
 ---
 
 # Current Features:
@@ -11,6 +19,9 @@
 - Overhead Camera Height
 - Unlimited Garden Space
 - Outputs Viva Pinata Logs to console
+- Instant break items
+- Instant break sick pinata
+- Force Gretchen hunted Item (With List of all possible items including removed content)
 
 ---
 
