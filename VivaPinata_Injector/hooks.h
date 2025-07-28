@@ -2,8 +2,16 @@
 #include "gui.h"
 
 
+#include <filesystem>
+#include <windows.h>
+#include <iostream>
+
 namespace hooks
 {
+
+	inline std::filesystem::path Temppath = std::filesystem::temp_directory_path() / "VivaPinata_Injector";
+	inline size_t TempbytesToRead = 0;
+	inline char Tempbuffer[20000];
 
 	void Setup();
 	void Destroy() noexcept;
@@ -71,7 +79,7 @@ namespace hooks
 	inline ItemDamageFn_00751B30 ItemDamage_00751B30_Original = nullptr;
 	int __cdecl ItemDamage_00751B30(int a1, int Damage, int a3) noexcept;
 
-	using GetItemNameFn_00745AD0 = wchar_t*(__cdecl*)(int ID, DWORD* a2, int a3) noexcept;
+	using GetItemNameFn_00745AD0 = wchar_t* (__cdecl*)(int ID, DWORD* a2, int a3) noexcept;
 	inline GetItemNameFn_00745AD0 GetItemName_00745AD0_Original = nullptr;
 	wchar_t* __cdecl GetItemName_00745AD0(int ID, DWORD* a2, int a3) noexcept;
 
@@ -79,11 +87,38 @@ namespace hooks
 	inline GetItemNameParentFn_00745BE0 GetItemNameParent_00745BE0_Original = nullptr;
 	const char* __cdecl GetItemNameParent_00745BE0(int ID) noexcept;
 
-	using GetItemNameParent2Fn_00745B50 = const char* (__cdecl*)(int ID) noexcept;
-	inline GetItemNameParent2Fn_00745B50 GetItemNameParent2_00745B50_Original = nullptr;
-	const char* __cdecl GetItemNameParent2_00745B50(int ID) noexcept;
-
 	using UnknownFn_00727E10 = int(__cdecl*)(int a1) noexcept;
 	inline UnknownFn_00727E10 Unknown_00727E10_Original = nullptr;
 	int __cdecl Unknown_00727E10(int a1) noexcept;
+
+	using AllocateStarMenuFn_00433B80 = int(__stdcall*)(int a1, DWORD* a2) noexcept;
+	inline AllocateStarMenuFn_00433B80 AllocateStarMenu_00433B80_Original = nullptr;
+	int __stdcall AllocateStarMenu_00433B80(int a1, DWORD* a2) noexcept;
+
+	using AddOrUpdatePackageContextFn_008B73E0 = int(__cdecl*)(int* a1) noexcept;
+	inline AddOrUpdatePackageContextFn_008B73E0 AddOrUpdatePackageContext_008B73E0_Original = nullptr;
+	int __cdecl  AddOrUpdatePackageContext_008B73E0(int* a1) noexcept;
+
+	// Note: The original function uses __thiscall (member function, 'this' in ECX).
+	// MinHook hooks it using __fastcall, so the first parameter is 'this', the second is a dummy (usually nullptr).
+	using OpenWadFileFn_00865A40 = bool(__fastcall*)(void* thisptr, void* /*unused*/, const char* FileEntryBuffer, DWORD* OpenFileBuffer, size_t* ShaderLength, char UnknownFlag) noexcept;
+	inline OpenWadFileFn_00865A40 OpenWadFile_00865A40_Original = nullptr;
+	bool __fastcall OpenWadFile(void* thisptr, void* /*unused*/, const char* FileEntryBuffer, DWORD* OpenFileBuffer, size_t* ShaderLength, char UnknownFlag) noexcept;
+
+	//char __thiscall ReadQualitySettings(_DWORD *this, char *Str, int a3, int a4) (Fn_004A1BE0)
+	using ReadQualitySettingsFn_004A1BE0 = char(__fastcall*)(void* thisptr, void* /*unused*/, char* Str, int a3, int a4) noexcept;
+	inline ReadQualitySettingsFn_004A1BE0 ReadQualitySettings_004A1BE0_Original = nullptr;
+	char __fastcall ReadQualitySettings(void* thisptr, void* /*unused*/, char* Str, int a3, int a4) noexcept;
+
+	// char* __cdecl sub_96E7B0(char* Source, int a2)
+	//Has something to do with loading cutscenes or something similar, not sure yet.
+	using UnknownTestFn_0096E7B0 = char* (__cdecl*)(char* Source, int a2) noexcept;
+	inline UnknownTestFn_0096E7B0 UnknownTest_0096E7B0_Original = nullptr;
+	char* __cdecl UnknownTest_0096E7B0(char* Source, int a2) noexcept;
+
+	//int __thiscall sub_6B6860(int *this, int a2)
+	// This function is used to get the pinata info when you click on the information button (Y button) while hovering over a pinata.
+	using PinataInfoFn_006B6860 = int(__fastcall*)(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
+	inline  PinataInfoFn_006B6860  PinataInfo_006B6860_Original = nullptr;
+	int __fastcall  PinataInfo_006B6860(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
 }

@@ -4,12 +4,17 @@
 #include <stdexcept>
 #include <intrin.h>
 #include <fstream>
+#include <algorithm>
+
 
 #include "minhook/minhook.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx9.h"
+
+#include <shlobj.h> // Add this include to define CSIDL_DESKTOP
+
 
 void hooks::Setup()
 {
@@ -103,7 +108,45 @@ void hooks::Setup()
 		&Unknown_00727E10,
 		reinterpret_cast<void**>(&Unknown_00727E10_Original)
 	)) throw std::runtime_error("Unable to hook Unknown_00727E10()");
+	
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00433B80),
+		&AllocateStarMenu_00433B80,
+		reinterpret_cast<void**>(&AllocateStarMenu_00433B80_Original)
+	)) throw std::runtime_error("Unable to hook AllocateStarMenu_00433B80()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x008B73E0),
+		&AddOrUpdatePackageContext_008B73E0,
+		reinterpret_cast<void**>(&AddOrUpdatePackageContext_008B73E0_Original)
+	)) throw std::runtime_error("Unable to hook AddOrUpdatePackageContext_008B73E0()");
+	
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00865A40),
+		&OpenWadFile,
+		reinterpret_cast<void**>(&OpenWadFile_00865A40_Original)
+	)) throw std::runtime_error("Unable to hook OpenWadFile()");
+
+	
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x004A1BE0),
+		&ReadQualitySettings,
+		reinterpret_cast<void**>(&ReadQualitySettings_004A1BE0_Original)
+	)) throw std::runtime_error("Unable to hook ReadQualitySettings()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x0096E7B0),
+		&UnknownTest_0096E7B0,
+		reinterpret_cast<void**>(&UnknownTest_0096E7B0_Original)
+	)) throw std::runtime_error("Unable to hook UnknownTest_0096E7B0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x006B6860),
+		&PinataInfo_006B6860,
+		reinterpret_cast<void**>(&PinataInfo_006B6860_Original)
+	)) throw std::runtime_error("Unable to hook PinataInfo_006B6860()");
+
+	
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
@@ -339,3 +382,121 @@ int __cdecl hooks::Unknown_00727E10(int a1) noexcept
 	//std::cout << "Unknown_00727E10 called with a1: " << a1 << " and result: " << result << std::endl;
 	return result;
 }
+
+
+int __stdcall hooks::AllocateStarMenu_00433B80(int a1, DWORD* a2) noexcept
+{
+	int result = AllocateStarMenu_00433B80_Original(a1, a2);
+	std::cout << "AllocateStarMenu_00433B80 called with a1: " << a1 << " a2: " << a2 << " and result: " << result << std::endl;
+	std::cout << "result: " << result << std::endl;
+	return result;
+}
+
+int __cdecl hooks::AddOrUpdatePackageContext_008B73E0(int* a1) noexcept
+{
+	std::cout << "AddOrUpdatePackageContext_008B73E0 called with a1: " << a1 << std::endl;
+	return AddOrUpdatePackageContext_008B73E0_Original(a1);
+}
+
+bool __fastcall hooks::OpenWadFile(void* thisptr, void* /*unused*/, const char* FileEntryBuffer, DWORD* OpenFileBuffer, size_t* ShaderLength, char UnknownFlag) noexcept
+{
+	bool result = OpenWadFile_00865A40_Original(thisptr, nullptr, FileEntryBuffer, OpenFileBuffer, ShaderLength, UnknownFlag);
+	std::cout << "Loading Shader: " << (FileEntryBuffer ? FileEntryBuffer : "nullptr") << std::endl;
+
+	for(size_t i = 0; i < 20000; ++i) {
+		Tempbuffer[i] = 0; // Initialize Tempbuffer to zero
+	}
+
+	if (FileEntryBuffer && OpenFileBuffer && ShaderLength && *ShaderLength > 0) {
+		char desktopPath[MAX_PATH];
+		std::string cwd = std::filesystem::current_path().string();
+		strncpy(desktopPath, cwd.c_str(), MAX_PATH - 1);
+		desktopPath[MAX_PATH - 1] = '\0';
+		
+		std::filesystem::path outDir = std::filesystem::path(desktopPath);
+		std::string sanitizedFileEntry(FileEntryBuffer);
+		std::replace(sanitizedFileEntry.begin(), sanitizedFileEntry.end(), ' ', '_');
+		std::filesystem::path outFile = outDir / sanitizedFileEntry;
+
+		if (std::filesystem::exists(outFile)) {
+			std::ifstream ifs(outFile, std::ios::binary | std::ios::ate);
+			if (ifs.is_open()) {
+				std::streamsize fileSize = ifs.tellg();
+				ifs.seekg(0, std::ios::beg);
+
+				TempbytesToRead = std::filesystem::file_size(outFile);
+				if(TempbytesToRead == 0) {
+					goto ELSE; // Skip reading if the file is empty
+				}
+				for(size_t i = 0; i < TempbytesToRead; ++i) {
+					Tempbuffer[i] = ifs.get();
+				}
+				ifs.close();
+			}
+			else {
+				//std::cerr << "Failed to open file: " << outFile << std::endl;
+			}
+		}
+		else {
+			ELSE:
+			std::cerr << "File does not exist: " << outFile << std::endl;
+			Temppath = outFile.string(); // Store the path for later use
+			//create file with subdirectory
+			std::filesystem::create_directories(outFile.parent_path());
+			std::filesystem::create_directories(outDir);
+			std::ofstream ofs(outFile, std::ios::binary);
+			if (ofs.is_open()) {
+				std::cout << "Creating file: " << outFile << std::endl;
+				ofs.close();
+			} else {
+				std::cerr << "Failed to create file: " << outFile << std::endl;
+			}
+		}
+	}
+
+	return result;
+}
+
+char __fastcall hooks::ReadQualitySettings(void* thisptr, void* /*unused*/, char* Str, int a3, int a4) noexcept
+{
+	//a3 length, Str is the file
+
+
+	char result = ReadQualitySettings_004A1BE0_Original(thisptr, nullptr, Str, a3, a4);
+	std::cout << "Load Quality Settings called" << std::endl;
+
+	// Only write if the file is empty
+	if (std::filesystem::exists(Temppath) && std::filesystem::file_size(Temppath) == 0) {
+		std::ofstream ofs(Temppath, std::ios::binary);
+		if (ofs.is_open()) {
+			ofs.write(Str, a3);
+			ofs.close();
+			//std::cout << "Wrote " << a3 << " bytes to " << Temppath << std::endl;
+		}
+		else {
+			//std::cerr << "Failed to open file for writing: " << Temppath << std::endl;
+		}
+	}
+	else {
+		
+		memccpy(Str, Tempbuffer, 0, a3); // Copy the contents of Str to Tempbuffer
+		a3 = static_cast<int>(TempbytesToRead);
+	}
+
+
+	return result;
+}
+
+//Has something to do with loading cutscenes or something similar, not sure yet.
+char* __cdecl hooks::UnknownTest_0096E7B0(char* Source, int a2) noexcept {
+	char* result = UnknownTest_0096E7B0_Original(Source, a2);
+	std::cout << "UnknownTest_0096E7B0 called with Source: " << (Source ? Source : "nullptr") << " and a2: " << a2 << std::endl;
+	return result;
+}
+
+int __fastcall  hooks::PinataInfo_006B6860(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept {
+	int result = PinataInfo_006B6860_Original(thisptr, nullptr, thisr, a2);
+	std::cout << "PinataInfo_006B6860 called with thisptr: " << thisptr << " thisr: " << thisr << " and a2: " << a2 << std::endl;
+	return result;
+}
+

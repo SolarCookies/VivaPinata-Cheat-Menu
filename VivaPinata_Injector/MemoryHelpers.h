@@ -6,7 +6,7 @@
 #include <string>
 
 
-//Gets the address of the viva Piñata.exe module and add the address offset to it
+//Gets the address of the Viva Piñata.exe module and add the address offset to it
 inline static uintptr_t GetVivaAddressPtr(uintptr_t address) noexcept {
 
 	HMODULE moduleHandle = GetModuleHandleA("Viva Pinata.exe");
@@ -154,6 +154,5 @@ namespace MemHelp {
 		//restore the old protection
 		VirtualProtect(reinterpret_cast<LPVOID>(addressValue), sizeof(int), oldProtect, &oldProtect);
 	}
-
 
 }
