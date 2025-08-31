@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 
 //Gets the address of the Viva Piñata.exe module and add the address offset to it
@@ -27,6 +28,7 @@ inline static uintptr_t GetVivaAddressPtr(uintptr_t address) noexcept {
 
 //Simple Memory Patches are used to patch only one address at a time, They store both the enabled and disabled bytes that way we can restore the original bytes if toggled
 static struct SimpleMemoryPatch {
+	std::string name;
 	uintptr_t address;
 	std::vector<byte> disabledbytes;
 	std::vector<byte> enabledbytes;
@@ -82,6 +84,7 @@ namespace MemHelp {
 
 	//Sets bytes at the patch address based on if it should be enabled or disabled
 	inline static void SetPatch(SimpleMemoryPatch& patch, bool enable) noexcept {
+		std::cout << "Setting Patch: " << patch.name << " to " << (enable ? "Enabled" : "Disabled") << std::endl;
 		uintptr_t addressValue = GetVivaAddressPtr(patch.address);
 		if (enable) {
 			for (size_t i = 0; i < patch.enabledbytes.size(); ++i) {
@@ -153,6 +156,33 @@ namespace MemHelp {
 		*reinterpret_cast<int*>(addressValue) = value;
 		//restore the old protection
 		VirtualProtect(reinterpret_cast<LPVOID>(addressValue), sizeof(int), oldProtect, &oldProtect);
+	}
+
+	inline static void PatchExe(uintptr_t Offset, const std::vector<byte>& bytes) noexcept {
+		//open exe file
+		std::string WorkingDir = std::filesystem::current_path().string();
+		WorkingDir += "\\Viva Pinata.exe";
+		std::cout << "Patching Exe: " << WorkingDir << " at offset: " << std::hex << Offset << std::dec << std::endl;
+		FILE* file = nullptr;
+		fopen_s(&file, WorkingDir.c_str(), "r+b");
+		if (!file) {
+			std::cerr << "Failed to open Viva Pinata.exe for patching." << std::endl;
+			return;
+		}
+		//move to offset
+		if (fseek(file, Offset, SEEK_SET) != 0) {
+			std::cerr << "Failed to seek to offset in Viva Pinata.exe." << std::endl;
+			fclose(file);
+			return;
+		}
+		//write bytes
+		size_t written = fwrite(bytes.data(), sizeof(byte), bytes.size(), file);
+		if (written != bytes.size()) {
+			std::cerr << "Failed to write all bytes to Viva Pinata.exe." << std::endl;
+		}
+		else {
+			std::cout << "Successfully patched Viva Pinata.exe." << std::endl;
+		}
 	}
 
 }

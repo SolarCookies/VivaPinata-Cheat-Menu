@@ -154,7 +154,7 @@ namespace menu {
 	static inline void RenderGarden() {
 
 		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(g_UnlimitedGardenSpace);
-		if (ImGui::Checkbox("Unlimited Garden Space", &bUnlimitedGardenSpace)) {
+		if (ImGui::Checkbox("Unlimited Garden Space (WIP)", &bUnlimitedGardenSpace)) {
 			MemHelp::SetPatch(g_UnlimitedGardenSpace, bUnlimitedGardenSpace);
 			if (bUnlimitedGardenSpace) {
 				std::cout << "Unlimited Garden Space enabled" << std::endl;
@@ -162,6 +162,13 @@ namespace menu {
 			else {
 				std::cout << "Unlimited Garden Space disabled" << std::endl;
 			}
+		}
+
+		//float controller for g_Time
+		float timeScale = g_Time;
+		if (ImGui::SliderFloat("World Time", &timeScale, 0.0f, 86400.0f)) {
+			g_Time = timeScale;
+			g_UpdateTime = true;
 		}
 
 	}
@@ -197,7 +204,7 @@ namespace menu {
 		uint32_t huntedPinata = MemHelp::GetInt(0xAE8510);
 		const char* hunted = std::to_string(huntedPinata).c_str();
 
-		for (PinataIDs Piñata : g_PinataIDs) {
+		for (const PinataIDs& Piñata : g_PinataIDs) {
 			if (Piñata.ID == huntedPinata) {
 				hunted = Piñata.Name;
 				break;
@@ -251,9 +258,13 @@ namespace menu {
 				std::cout << "Debug mode disabled" << std::endl;
 			}
 		}
-
+		uintptr_t addressValue2 = GetVivaAddressPtr(0x00C054F4);
+		int RNG_Seed = *(int*)addressValue2;
 		//Show debug values if enabled
 		if (g_Debug) {
+			
+
+			ImGui::Text("RNG Seed Value: %d", RNG_Seed);
 			//Debug values (Once set they will display)
 			ImGui::Separator();
 			if (g_PlayerDataPtr) {

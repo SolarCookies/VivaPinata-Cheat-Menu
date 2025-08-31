@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <windows.h>
 #include <iostream>
+#include "Hooks/Hook.h"
 
 namespace hooks
 {
@@ -12,22 +13,13 @@ namespace hooks
 	inline std::filesystem::path Temppath = std::filesystem::temp_directory_path() / "VivaPinata_Injector";
 	inline size_t TempbytesToRead = 0;
 	inline char Tempbuffer[20000];
+	inline int TempIndex = 0;
+
+	inline std::vector<std::unique_ptr<Hook>> HookList;
 
 	void Setup();
 	void Destroy() noexcept;
 
-	constexpr void* VirtualFunction(void* thisptr, size_t index) noexcept
-	{
-		return (*static_cast<void***>(thisptr))[index];
-	}
-
-	// DirectX9 hooks
-
-	// Binds to Set Viewport, This is the only function that i could find that would display the menu on the screen
-	//  - More research is needed to find a better function to bind to that renders ontop of the UI
-	using SetViewportFn = HRESULT(__stdcall*)(IDirect3DDevice9*, const D3DVIEWPORT9*) noexcept;
-	inline SetViewportFn SetViewportOriginal = nullptr;
-	HRESULT __stdcall SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport) noexcept;
 
 	//Viva Piñata.exe hooks
 
@@ -45,31 +37,6 @@ namespace hooks
 	using UpdateCameraByModeFn = int(__cdecl*)(int, CameraData*) noexcept;
 	inline UpdateCameraByModeFn UpdateCameraByModeOriginal = nullptr;
 	int __cdecl UpdateCameraByMode(int a1, CameraData* a2) noexcept;
-
-	// Binds a print function at offset 0x0073FB80 
-	using PrintLineFn_00405740 = void(__cdecl*)(const char*, ...) noexcept;
-	inline PrintLineFn_00405740 PrintFunc_00405740_Original = nullptr;
-	void __cdecl PrintFunc_00405740(const char* format, ...) noexcept;
-
-	// Binds a print function at offset 0x0073FB80 
-	using PrintLineFn_00405790 = void(__cdecl*)(const char*, ...) noexcept;
-	inline PrintLineFn_00405790 PrintFunc_00405790_Original = nullptr;
-	void __cdecl PrintFunc_00405790(const char* format, ...) noexcept;
-
-	// Binds a print function at offset 0x004055e0
-	using PrintLineFn_004055e0 = void(__cdecl*)(const char*, ...) noexcept;
-	inline PrintLineFn_004055e0 PrintFunc_004055e0_Original = nullptr;
-	void __cdecl PrintFunc_004055e0(const char* format, ...) noexcept;
-
-	// Binds a print function at offset 0x00402bf0
-	using PrintLineFn_00402bf0 = void(__cdecl*)(const char*, ...) noexcept;
-	inline PrintLineFn_00402bf0 PrintFunc_00402bf0_Original = nullptr;
-	void __cdecl PrintFunc_00402bf0(const char* format, ...) noexcept;
-
-	// Binds a print function at offset 0x00851720
-	using PrintLineFn_00851720 = void(__cdecl*)(wchar_t*, rsize_t, const wchar_t*, ...) noexcept;
-	inline PrintLineFn_00851720 PrintFunc_00851720_Original = nullptr;
-	void __cdecl PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wchar_t* format, ...) noexcept;
 
 	using PinataDamageFn_00551640 = int(__cdecl*)(int a1, int Damage) noexcept;
 	inline PinataDamageFn_00551640 PinataDamage_00551640_Original = nullptr;
@@ -121,4 +88,104 @@ namespace hooks
 	using PinataInfoFn_006B6860 = int(__fastcall*)(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
 	inline  PinataInfoFn_006B6860  PinataInfo_006B6860_Original = nullptr;
 	int __fastcall  PinataInfo_006B6860(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
+
+	//int __stdcall sub_433590(int a1, _DWORD *a2)
+	//Contains a ref to SlotMachineBalance::`vftable', A1 gets plugged into the vftable so maybe its the price of the item?
+	using SlotMachineBalanceFn_00433590 = int(__stdcall*)(int a1, DWORD* a2) noexcept;
+	inline SlotMachineBalanceFn_00433590 SlotMachineBalance_00433590_Original = nullptr;
+	int __stdcall SlotMachineBalance_00433590(int a1, DWORD* a2) noexcept;
+
+	//int __thiscall sub_907950(int *this, int a2)
+	//(Responsible for displaying the name of the pinata when you hover over it)
+	using PinataAvatarFn_00907950 = int(__fastcall*)(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
+	inline PinataAvatarFn_00907950 PinataAvatar_00907950_Original = nullptr;
+	int __fastcall PinataAvatar_00907950(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept;
+
+	//int __stdcall sub_5EEF9F(int a1, int a2)
+	//(Called when the game needs to draw text to the screen) (Only for some things though)
+	using TextDisplayFn_005EEF9F = int(__stdcall*)(int a1, int a2) noexcept;
+	inline TextDisplayFn_005EEF9F TextDisplay_005EEF9F_Original = nullptr;
+	int __stdcall TextDisplay_005EEF9F(int a1, int a2) noexcept;
+
+
+	//int __thiscall SetClockHandRot_6BF9A0(int *this, float a2)
+	using SetClockHandRotFn_006BF9A0 = int(__fastcall*)(int* thisptr, void* /*unused*/, int* thisr, float a2) noexcept;
+	inline SetClockHandRotFn_006BF9A0 SetClockHandRot_006BF9A0_Original = nullptr;
+	int __fastcall SetClockHandRot_006BF9A0(int* thisptr, void* /*unused*/, int* thisr, float a2) noexcept;
+
+	//int GetGarden_00773D10()
+	using GetGardenFn_00773D10 = int(__cdecl*)() noexcept;
+	inline GetGardenFn_00773D10 GetGarden_00773D10_Original = nullptr;
+	int __cdecl GetGarden_00773D10() noexcept;
+
+	//_DWORD *__usercall FormatTime_70B020@<eax>(int PtrToTime@<eax>, int *Hours, int *Min, _DWORD *a4)
+	using FormatTimeFn_0070B020 = DWORD * (__cdecl*)(int PtrToTime, int* Hours, int* Min, DWORD* a4) noexcept;
+	inline FormatTimeFn_0070B020 FormatTime_0070B020_Original = nullptr;
+	DWORD* __cdecl FormatTime_0070B020(int PtrToTime, int* Hours, int* Min, DWORD* a4) noexcept;
+
+	//int __cdecl sub_7740F0(struct tm *Tm, int a2)
+	using LoadMapFn_007740F0 = int(__cdecl*)(struct tm* Tm, int a2) noexcept;
+	inline LoadMapFn_007740F0 LoadMap_007740F0_Original = nullptr;
+	int __cdecl LoadMap_007740F0(struct tm* Tm, int a2) noexcept;
+
+	//int __stdcall sub_7DEA60(int a1, wchar_t *Str, _DWORD *a3, _DWORD *a4)
+	using GetUITextureFn_007DEA60 = int(__stdcall*)(int a1, wchar_t* Str, DWORD* a3, DWORD* a4) noexcept;
+	inline GetUITextureFn_007DEA60 GetUITexture_007DEA60_Original = nullptr;
+	int __stdcall GetUITexture_007DEA60(int a1, wchar_t* Str, DWORD* a3, DWORD* a4) noexcept;
+
+	//int __cdecl sub_70D680(int a1) PinataIDs
+	using GetPinataIDsFn_0070D680 = int(__cdecl*)(int a1) noexcept;
+	inline GetPinataIDsFn_0070D680 GetPinataIDs_0070D680_Original = nullptr;
+	int __cdecl GetPinataIDs_0070D680(int a1) noexcept;
+
+	//_DWORD *__thiscall sub_7F8FB0(_DWORD *this) SetGlobalSaveStruct
+	using SetGlobalSaveStructFn_007F8FB0 = DWORD * (__fastcall*)(DWORD* thisptr) noexcept;
+	inline SetGlobalSaveStructFn_007F8FB0 SetGlobalSaveStruct_007F8FB0_Original = nullptr;
+	DWORD* __fastcall SetGlobalSaveStruct_007F8FB0(DWORD* thisptr) noexcept;
+
+	//int __cdecl sub_7F0EB0(int a1, int a2, int a3)
+	using sub_7F0EB0Fn = int(__cdecl*)(int a1, int a2, int a3) noexcept;
+	inline sub_7F0EB0Fn sub_7F0EB0_Original = nullptr;
+	int __cdecl sub_7F0EB0(int a1, int a2, int a3) noexcept;
+
+	//BOOL __cdecl sub_7F2170(_DWORD *a1, _DWORD *a2, _BYTE *a3)
+	using sub_7F2170Fn = BOOL(__cdecl*)(DWORD* a1, DWORD* a2, BYTE* a3) noexcept;
+	inline sub_7F2170Fn sub_7F2170_Original = nullptr;
+	BOOL __cdecl sub_7F2170(DWORD* a1, DWORD* a2, BYTE* a3) noexcept;
+
+	//void __cdecl sub_4B5B90(int a1)
+	using sub_4B5B90Fn = void(__cdecl*)(int a1) noexcept;
+	inline sub_4B5B90Fn sub_4B5B90_Original = nullptr;
+	void __cdecl sub_4B5B90(int a1) noexcept;
+
+	//int __cdecl PseudoRandom_418FF0(int *a1, int a2, int a3)
+	using PseudoRandomFn_00418FF0 = int(__cdecl*)(int* a1, int a2, int a3) noexcept;
+	inline PseudoRandomFn_00418FF0 PseudoRandom_00418FF0_Original = nullptr;
+	int __cdecl PseudoRandom_00418FF0(int* a1, int a2, int a3) noexcept;
+
+	//int __usercall sub_4B5430@<eax>(int a1@<esi>)
+	using sub_4B5430Fn = int(__cdecl*)(int a1) noexcept;
+	inline sub_4B5430Fn sub_4B5430_Original = nullptr;
+	int __cdecl sub_4B5430(int a1) noexcept;
+
+	//int __cdecl sub_4B54A0(_DWORD *a1, int a2)
+	using sub_4B54A0Fn = int(__cdecl*)(DWORD* a1, int a2) noexcept;
+	inline sub_4B54A0Fn sub_4B54A0_Original = nullptr;
+	int __cdecl sub_4B54A0(DWORD* a1, int a2) noexcept;
+
+
+	//void __cdecl sub_7D0A20(int *a1, float a2)
+	using sub_7D0A20Fn = void(__cdecl*)(int* a1, float a2) noexcept;
+	inline sub_7D0A20Fn sub_7D0A20_Original = nullptr;
+	void __cdecl sub_7D0A20(int* a1, float a2) noexcept;
+
+	//int __cdecl sub_80E820(int a1)
+	using sub_80E820Fn = int(__cdecl*)(int a1) noexcept;
+	inline sub_80E820Fn sub_80E820_Original = nullptr;
+	int __cdecl sub_80E820(int a1) noexcept;
+
+	//int __cdecl sub_957750(int a1)
+	using sub_957750Fn = int(__cdecl*)(int a1) noexcept;
+	inline sub_957750Fn sub_957750_Original = nullptr;
+	int __cdecl sub_957750(int a1) noexcept;
 }

@@ -1,35 +1,29 @@
 #include "hooks.h"
 
-#include <wchar.h>
-#include <stdexcept>
-#include <intrin.h>
-#include <fstream>
-#include <algorithm>
-
-
-#include "minhook/minhook.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx9.h"
-
-#include <shlobj.h> // Add this include to define CSIDL_DESKTOP
+//Hooks
+#include "Hooks/Prints/PrintHooks.h"
+#include "Hooks/DirectX/DXHooks.h"
+#include "Patches.h"
 
 
 void hooks::Setup()
 {
 	if (MH_Initialize())
 		throw std::runtime_error("Unable to initialize minhook");
+
+	// Register Hook Classes
+	{
+		HookList.push_back(std::make_unique<PrintHooks>());
+		HookList.push_back(std::make_unique<DXHooks>());
+	}
+
+	OnStartupPatch();
+
+	// Setup All Hook Classes
+	for (auto& HookClass : HookList) {
+		HookClass->Setup();
+	}
 	
-	// DirectX9 hooks
-
-	// Add SetViewport hook
-	if (MH_CreateHook(
-		VirtualFunction(gui::Ourdevice, 48),
-		&SetViewport,
-		reinterpret_cast<void**>(&SetViewportOriginal)
-	)) throw std::runtime_error("Unable to hook SetViewport()");
-
 
 	//Viva Piñata.exe hooks
 	
@@ -46,38 +40,6 @@ void hooks::Setup()
 		&UpdateCameraByMode,
 		reinterpret_cast<void**>(&UpdateCameraByModeOriginal)
 	)) throw std::runtime_error("Unable to hook UpdateCameraByMode()");
-
-	// Hook the various print functions.
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x00405740),
-		&PrintFunc_00405740,
-		reinterpret_cast<void**>(&PrintFunc_00405740_Original)
-	)) throw std::runtime_error("Unable to hook PrintFunc_00405740()");
-
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x00405790),
-		&PrintFunc_00405790,
-		reinterpret_cast<void**>(&PrintFunc_00405790_Original)
-	)) throw std::runtime_error("Unable to hook PrintFunc_00405790()");
-
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x004055e0),
-		&PrintFunc_004055e0,
-		reinterpret_cast<void**>(&PrintFunc_004055e0_Original)
-	)) throw std::runtime_error("Unable to hook PrintFunc_004055e0()");
-
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x00402bf0),
-		&PrintFunc_00402bf0,
-		reinterpret_cast<void**>(&PrintFunc_00402bf0_Original)
-	)) throw std::runtime_error("Unable to hook PrintFunc_00402bf0()");
-
-	// Not an actual print function.
-	//if (MH_CreateHook(
-	//	reinterpret_cast<void*>(0x00851720),
-	//	&PrintFunc_00851720,
-	//	reinterpret_cast<void**>(&PrintFunc_00851720_Original)
-	//)) throw std::runtime_error("Unable to hook PrintFunc_00851720()");
 
 	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x00551640),
@@ -146,7 +108,104 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&PinataInfo_006B6860_Original)
 	)) throw std::runtime_error("Unable to hook PinataInfo_006B6860()");
 
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00433590),
+		&SlotMachineBalance_00433590,
+		reinterpret_cast<void**>(&SlotMachineBalance_00433590_Original)
+	)) throw std::runtime_error("Unable to hook SlotMachineBalance_00433590()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00907950),
+		&PinataAvatar_00907950,
+		reinterpret_cast<void**>(&PinataAvatar_00907950_Original)
+	)) throw std::runtime_error("Unable to hook PinataAvatar_00907950()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x005EEF9F),
+		&TextDisplay_005EEF9F,
+		reinterpret_cast<void**>(&TextDisplay_005EEF9F_Original)
+	)) throw std::runtime_error("Unable to hook TextDisplay_005EEF9F()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007740F0),
+		&LoadMap_007740F0,
+		reinterpret_cast<void**>(&LoadMap_007740F0_Original)
+	)) throw std::runtime_error("Unable to hook LoadMap_007740F0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007DEA60),
+		&GetUITexture_007DEA60,
+		reinterpret_cast<void**>(&GetUITexture_007DEA60_Original)
+	)) throw std::runtime_error("Unable to GetUITexture_007DEA60()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x0070D680),
+		&GetPinataIDs_0070D680,
+		reinterpret_cast<void**>(&GetPinataIDs_0070D680_Original)
+	)) throw std::runtime_error("Unable to GetPinataIDs_0070D680()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x004B5B90),
+		&sub_4B5B90,
+		reinterpret_cast<void**>(&sub_4B5B90_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00418FF0),
+		&PseudoRandom_00418FF0,
+		reinterpret_cast<void**>(&PseudoRandom_00418FF0_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x004B5430),
+		&sub_4B5430,
+		reinterpret_cast<void**>(&sub_4B5430_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x004B54A0),
+		&sub_4B54A0,
+		reinterpret_cast<void**>(&sub_4B54A0_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007D0A20),
+		&sub_7D0A20,
+		reinterpret_cast<void**>(&sub_7D0A20_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x0080E820),
+		&sub_80E820,
+		reinterpret_cast<void**>(&sub_80E820_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00957750),
+		&sub_957750,
+		reinterpret_cast<void**>(&sub_957750_Original)
+	)) throw std::runtime_error("Unable to ");
+
+	/*
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007F8FB0),
+		&SetGlobalSaveStruct_007F8FB0,
+		reinterpret_cast<void**>(&SetGlobalSaveStruct_007F8FB0_Original)
+	)) throw std::runtime_error("Unable toSetGlobalSaveStruct_007F8FB0()");
 	
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007F0EB0),
+		&sub_7F0EB0,
+		reinterpret_cast<void**>(&sub_7F0EB0_Original)
+	)) throw std::runtime_error("Unable to hook to sub_7F0EB0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007F2170),
+		&sub_7F2170,
+		reinterpret_cast<void**>(&sub_7F2170_Original)
+	)) throw std::runtime_error("Unable to hook to sub_7F2170()");
+	*/
+
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("Unable to enable hooks");
@@ -161,44 +220,6 @@ void hooks::Destroy() noexcept
 	MH_Uninitialize();
 }
 
-// DirectX9 hooks
-
-// Binds to Set Viewport, This is the only function that i could find that would display the menu on the screen
-//  - More research is needed to find a better function to bind to that renders ontop of the UI
-HRESULT __stdcall hooks::SetViewport(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport) noexcept
-{
-	const auto result = SetViewportOriginal(device, viewport);
-
-	if (!gui::setup) {
-		gui::SetupMenu(device);
-	}
-
-	if (!gui::open) {
-		return result;
-	}
-
-	ImGui_ImplDX9_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	device->SetRenderState(D3DRS_ZENABLE, FALSE); // Disable Z-buffer
-	device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE); // Disable Z writes
-
-	ImGui::SetNextWindowBgAlpha(0.1f); // Ensure full opacity
-	//ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always); // Top-left corner
-
-	gui::RenderImGUI();
-
-	device->SetRenderState(D3DRS_ZENABLE, TRUE); // Re-enable Z-buffer
-	device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE); // Re-enable Z writes
-
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
-
-	return result;
-}
 
 //Viva Piñata.exe hooks
 
@@ -209,7 +230,7 @@ char __cdecl hooks::SetPlayerCoins(PlayerData* Player, uint32_t NewCoinsValue) n
 {
 	const auto result = SetPlayerCoinsOriginal(Player, NewCoinsValue);
 
-	std::cout << "SetPlayerCoins called with PlayerID: " << Player->PlayerID << " to Value: " << NewCoinsValue << std::endl;
+	//std::cout << "SetPlayerCoins called with PlayerID: " << Player->PlayerID << " to Value: " << NewCoinsValue << std::endl;
 	g_PlayerDataPtr = Player;
 
 	return result;
@@ -228,88 +249,19 @@ int __cdecl hooks::UpdateCameraByMode(int a1, CameraData* a2) noexcept
 	return result;
 }
 
-void __cdecl hooks::PrintFunc_00405790(const char* format, ...) noexcept
-{
-	PrintFunc_00405790_Original(format);
-
-	char strToPrint[512];
-	va_list argptr;
-	va_start(argptr, format);
-	vsprintf(strToPrint, format, argptr);
-	va_end(argptr);
-
-	std::cout << strToPrint << std::endl;
-}
-
-void __cdecl hooks::PrintFunc_004055e0(const char* format, ...) noexcept
-{
-	PrintFunc_004055e0_Original(format);
-
-	char strToPrint[512];
-	va_list argptr;
-	va_start(argptr, format);
-	vsprintf(strToPrint, format, argptr);
-	va_end(argptr);
-
-	std::cout << strToPrint << std::endl;
-}
-
-void __cdecl hooks::PrintFunc_00402bf0(const char* format, ...) noexcept
-{
-	PrintFunc_00402bf0_Original(format);
-
-	char strToPrint[512];
-	va_list argptr;
-	va_start(argptr, format);
-	vsprintf(strToPrint, format, argptr);
-	va_end(argptr);
-
-	std::cout << strToPrint << std::endl;
-}
-
-void __cdecl hooks::PrintFunc_00405740(const char* format, ...) noexcept
-{
-	PrintFunc_00405740_Original(format);
-
-	char strToPrint[512];
-	va_list argptr;
-	va_start(argptr, format);
-	vsprintf(strToPrint, format, argptr);
-	va_end(argptr);
-
-	std::cout << strToPrint << std::endl;
-}
-
-// Not actually a function for printing, it's used for parsing file strings.
-void __cdecl hooks::PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wchar_t* format, ...) noexcept
-{
-	va_list argptr;
-	va_start(argptr, format);
-	int output = _vsnwprintf_s(buffer, bufsz, bufsz - 1, format, argptr);
-	va_end(argptr);
-
-	if (output == -1) {
-		buffer[bufsz - 1] = '\0';
-	}
-
-	std::wcout << buffer << std::endl;
-
-	//PrintFunc_00851720_Original(buffer, bufsz, buffer); Don't need to call the original function, hook does the same job.
-}
-
 //Calls when the Piñata takes damage by the player (Maybe also other things?)
 int __cdecl hooks::PinataDamage_00551640(int a1, int Damage) noexcept
 {
 	int result;
 	if (g_EasyBreakSickPinata) {
-		std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
+		//std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
 		result = PinataDamage_00551640_Original(a1, 1000);
 	}
 	else {
 		result = PinataDamage_00551640_Original(a1, Damage);
-		std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
+		//std::cout << "PinataDamage_00551640 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
 	}
-	
+
 	return result;
 }
 
@@ -318,12 +270,12 @@ int __cdecl hooks::ItemDamage_00751B30(int a1, int Damage, int a3) noexcept
 {
 	int result;
 	if (g_EasyBreakItems) {
-		std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
+		//std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << ".. Overriding to 1000.." << std::endl;
 		result = ItemDamage_00751B30_Original(a1, 1000, a3);
 	}
 	else {
 		result = ItemDamage_00751B30_Original(a1, Damage, a3);
-		std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
+		//std::cout << "ItemDamage_00751B30 called with a1: " << a1 << " and Damage: " << Damage << std::endl;
 	}
 	return result;
 }
@@ -353,7 +305,7 @@ const char* __cdecl hooks::GetItemNameParent_00745BE0(int ID) noexcept
 {
 	const char* result;
 
-	std::cout << "GetItemNameParent_00745BE0 called" << std::endl;
+	//std::cout << "GetItemNameParent_00745BE0 called" << std::endl;
 	/*
 	if(!Update){
 		for (int i = 0; i < 5000; i++) {
@@ -372,7 +324,7 @@ const char* __cdecl hooks::GetItemNameParent_00745BE0(int ID) noexcept
 	if (!result) {
 		return result;
 	}
-	std::cout << "GetItemNameParent_00745BE0 called with ID: " << ID << " and result: " << result << std::endl;
+	//std::cout << "GetItemNameParent_00745BE0 called with ID: " << ID << " and result: " << result << std::endl;
 	return result;
 }
 
@@ -383,25 +335,24 @@ int __cdecl hooks::Unknown_00727E10(int a1) noexcept
 	return result;
 }
 
-
 int __stdcall hooks::AllocateStarMenu_00433B80(int a1, DWORD* a2) noexcept
 {
 	int result = AllocateStarMenu_00433B80_Original(a1, a2);
-	std::cout << "AllocateStarMenu_00433B80 called with a1: " << a1 << " a2: " << a2 << " and result: " << result << std::endl;
-	std::cout << "result: " << result << std::endl;
+	//std::cout << "AllocateStarMenu_00433B80 called with a1: " << a1 << " a2: " << a2 << " and result: " << result << std::endl;
+	//std::cout << "result: " << result << std::endl;
 	return result;
 }
 
 int __cdecl hooks::AddOrUpdatePackageContext_008B73E0(int* a1) noexcept
 {
-	std::cout << "AddOrUpdatePackageContext_008B73E0 called with a1: " << a1 << std::endl;
+	//std::cout << "AddOrUpdatePackageContext_008B73E0 called with a1: " << a1 << std::endl;
 	return AddOrUpdatePackageContext_008B73E0_Original(a1);
 }
 
 bool __fastcall hooks::OpenWadFile(void* thisptr, void* /*unused*/, const char* FileEntryBuffer, DWORD* OpenFileBuffer, size_t* ShaderLength, char UnknownFlag) noexcept
 {
 	bool result = OpenWadFile_00865A40_Original(thisptr, nullptr, FileEntryBuffer, OpenFileBuffer, ShaderLength, UnknownFlag);
-	std::cout << "Loading Shader: " << (FileEntryBuffer ? FileEntryBuffer : "nullptr") << std::endl;
+	//std::cout << "Loading Shader: " << (FileEntryBuffer ? FileEntryBuffer : "nullptr") << std::endl;
 
 	for(size_t i = 0; i < 20000; ++i) {
 		Tempbuffer[i] = 0; // Initialize Tempbuffer to zero
@@ -439,17 +390,17 @@ bool __fastcall hooks::OpenWadFile(void* thisptr, void* /*unused*/, const char* 
 		}
 		else {
 			ELSE:
-			std::cerr << "File does not exist: " << outFile << std::endl;
+			//std::cerr << "File does not exist: " << outFile << std::endl;
 			Temppath = outFile.string(); // Store the path for later use
 			//create file with subdirectory
 			std::filesystem::create_directories(outFile.parent_path());
 			std::filesystem::create_directories(outDir);
 			std::ofstream ofs(outFile, std::ios::binary);
 			if (ofs.is_open()) {
-				std::cout << "Creating file: " << outFile << std::endl;
+				//std::cout << "Creating file: " << outFile << std::endl;
 				ofs.close();
 			} else {
-				std::cerr << "Failed to create file: " << outFile << std::endl;
+				//std::cerr << "Failed to create file: " << outFile << std::endl;
 			}
 		}
 	}
@@ -463,7 +414,7 @@ char __fastcall hooks::ReadQualitySettings(void* thisptr, void* /*unused*/, char
 
 
 	char result = ReadQualitySettings_004A1BE0_Original(thisptr, nullptr, Str, a3, a4);
-	std::cout << "Load Quality Settings called" << std::endl;
+	//std::cout << "Load Quality Settings called" << std::endl;
 
 	// Only write if the file is empty
 	if (std::filesystem::exists(Temppath) && std::filesystem::file_size(Temppath) == 0) {
@@ -490,13 +441,180 @@ char __fastcall hooks::ReadQualitySettings(void* thisptr, void* /*unused*/, char
 //Has something to do with loading cutscenes or something similar, not sure yet.
 char* __cdecl hooks::UnknownTest_0096E7B0(char* Source, int a2) noexcept {
 	char* result = UnknownTest_0096E7B0_Original(Source, a2);
-	std::cout << "UnknownTest_0096E7B0 called with Source: " << (Source ? Source : "nullptr") << " and a2: " << a2 << std::endl;
+	//std::cout << "UnknownTest_0096E7B0 called with Source: " << (Source ? Source : "nullptr") << " and a2: " << a2 << std::endl;
 	return result;
 }
 
 int __fastcall  hooks::PinataInfo_006B6860(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept {
 	int result = PinataInfo_006B6860_Original(thisptr, nullptr, thisr, a2);
-	std::cout << "PinataInfo_006B6860 called with thisptr: " << thisptr << " thisr: " << thisr << " and a2: " << a2 << std::endl;
+	//std::cout << "PinataInfo_006B6860 called with thisptr: " << thisptr << " thisr: " << thisr << " and a2: " << a2 << std::endl;
 	return result;
 }
+
+int __stdcall hooks::SlotMachineBalance_00433590(int a1, DWORD* a2) noexcept {
+	int result = SlotMachineBalance_00433590_Original(a1, a2);
+	//std::cout << "SlotMachineBalance_00433590 called with a1: " << a1 << " and a2: " << a2 << std::endl;
+	return result;
+}
+
+int __fastcall hooks::PinataAvatar_00907950(int* thisptr, void* /*unused*/, int* thisr, int a2) noexcept {
+	int result = PinataAvatar_00907950_Original(thisptr, nullptr, thisr, a2);
+	//std::cout << "PinataAvatar_00907950 called with thisptr: " << thisptr << " thisr: " << thisr << " and a2: " << a2 << std::endl;
+	return result;
+}
+
+int __stdcall hooks::TextDisplay_005EEF9F(int a1, int a2) noexcept {
+
+	//wchar_t Destination[24] = {0};
+	//wcsncpy(Destination, L"Solar Was Here", 24);
+
+	//int result = TextDisplay_005EEF9F_Original(a1, (int)Destination);
+
+	int result = TextDisplay_005EEF9F_Original(a1, a2);
+
+	return result;
+}
+
+int __cdecl hooks::LoadMap_007740F0(struct tm* Tm, int a2) noexcept {
+	int result = LoadMap_007740F0_Original(Tm, a2);
+	//std::cout << "LoadMap_007740F0 called with Tm: " << Tm << " and a2: " << a2 << std::endl;
+	//std::cout << "Loaded Map: " << "Year: " << Tm->tm_year << " Month: " << Tm->tm_mon + 1 << " Day: " << Tm->tm_mday  << " Hour: " << Tm->tm_hour << " Min: " << Tm->tm_min << " Sec: " << Tm->tm_sec << std::endl;
+
+	//Print int at a2 + 4
+	if (a2) {
+		int* intPtr = reinterpret_cast<int*>(a2 + 4);
+		//std::cout << "Int value at a2 + 4 'gardenWidth': " << *intPtr << std::endl;
+		//std::cout << "Float value at a2 + 4 'gardenWidth': " << *reinterpret_cast<float*>(a2 + 4) << std::endl;
+		intPtr = reinterpret_cast<int*>(a2 + 8);
+		//std::cout << "Int value at a2 + 8 'gardenHalfWidth': " << *intPtr << std::endl;
+		//std::cout << "Float value at a2 + 8 'gardenHalfWidth': " << *reinterpret_cast<float*>(a2 + 8) << std::endl;
+
+	}
+	return result;
+}
+
+int __stdcall hooks::GetUITexture_007DEA60(int a1, wchar_t* Str, DWORD* a3, DWORD* a4) noexcept {
+	int result = GetUITexture_007DEA60_Original(a1, Str, a3, a4);
+	//std::wcout << L"Texture Loading: " << (Str ? Str : L"nullptr") << std::endl;
+	return result;
+}
+
+int __cdecl hooks::GetPinataIDs_0070D680(int a1) noexcept{
+	int result = GetPinataIDs_0070D680_Original(a1);
+	//std::cout << "Get ID: " << result << " Aka: " << g_IDNames[result] << std::endl;
+	return result;
+}
+
+DWORD* __fastcall hooks::SetGlobalSaveStruct_007F8FB0(DWORD* thisptr) noexcept {
+
+	DWORD* result = SetGlobalSaveStruct_007F8FB0_Original(thisptr);
+	return result;
+
+	/* thisptr 
+		XMLSave[0] = sub_7F30E0;
+		XMLSave[1] = sub_7F3680;
+		XMLSave[2] = sub_7F3E70;
+		XMLSave[3] = nullsub_44;
+		XMLSave[4] = 0;
+		CompressedSave[0] = sub_7F42C0;
+		CompressedSave[1] = sub_7F4560;
+		CompressedSave[2] = sub_7F48C0;
+		CompressedSave[3] = nullsub_45;
+		CompressedSave[4] = 1;
+	*/
+	//Force thisptr to be XMLSave
+	thisptr[0] = 0x007F30E0; // sub_7F30E0
+	thisptr[1] = 0x007F3680; // sub_7F3680
+	thisptr[2] = 0x007F3E70; // sub_7F3E70
+	thisptr[3] = 0x0044B1A0; // nullsub_44 (This is a null function, so we can use any valid address)
+	//thisptr[4] = 0; // 0 for XMLSave
+	//DWORD* result = SetGlobalSaveStruct_007F8FB0_Original(thisptr);
+	//return result;
+}
+
+int __cdecl hooks::sub_7F0EB0(int a1, int a2, int a3) noexcept
+{
+	int result = sub_7F0EB0_Original(a1, a2, a3);
+
+	char* str = reinterpret_cast<char*>(a3);
+
+	//std::cout << "Tag: " << str << "a1: " << a1 << "a2: " << a2 << std::endl;
+
+	return result;
+}
+
+BOOL __cdecl hooks::sub_7F2170(DWORD* a1, DWORD* a2, BYTE* a3) noexcept
+{
+	BOOL result = sub_7F2170_Original(a1, a2, a3);
+	//int ValueAtA1_Int = (a2 && a2[0]) ? static_cast<int>(a2[0]) : 0;
+	//std::cout << "Loading Tag: " << reinterpret_cast<char*>(a3) << std::endl;
+	//std::cout << "Value at a1 as Int: " << ValueAtA1_Int << std::endl;
+	return result;
+}
+
+void __cdecl hooks::sub_4B5B90(int a1) noexcept
+{
+	//g_time 
+	*(float*)(a1 + 176) = g_Time;
+	*(float*)(a1 + 180) = g_Time;
+	//*(float*)(a1 + 4) = 0;
+	sub_4B5B90_Original(a1);
+	//std::cout << "Time is: " << *(int*)(a1 + 4) << std::endl;
+	return;
+}
+
+int __cdecl hooks::PseudoRandom_00418FF0(int* a1, int a2, int a3) noexcept
+{
+	int result = PseudoRandom_00418FF0_Original(a1, a2, a3);
+	return result;
+}
+
+
+
+int __cdecl hooks::sub_80E820(int a1) noexcept
+{
+	return sub_80E820_Original(a1);
+}
+
+int __cdecl hooks::sub_957750(int a1) noexcept
+{
+	//std::cout << "sub_957750 called with a1: " << a1 << std::endl;
+	return sub_957750_Original(a1);
+}
+
+void __cdecl hooks::sub_7D0A20(int* a1, float a2) noexcept
+{
+	sub_7D0A20_Original(a1, a2);
+	return;
+}
+
+int __cdecl hooks::sub_4B54A0(DWORD* a1, int a2) noexcept
+{
+	int result = sub_4B54A0_Original(a1, a2);
+
+	return result;
+}
+
+
+//These 2 functions have something to do with the wildcard random chance
+int __cdecl hooks::sub_4B5430(int a1) noexcept
+{
+	int v2 = sub_80E820(a1);
+	int v4 = sub_957750(v2);
+	int TimeContext = *(DWORD*)(v4 + 13120);
+	
+	if (g_UpdateTime) {
+		*(float*)(TimeContext + 4) = g_Time;
+		g_UpdateTime = false;
+	}
+
+	g_Time = *(float*)(TimeContext + 4);
+
+	int result = sub_4B5430_Original(a1);
+	return result;
+}
+
+
+
+
 
