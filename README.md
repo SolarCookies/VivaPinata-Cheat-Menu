@@ -22,6 +22,7 @@ https://github.com/user-attachments/assets/36d6c3e4-4c06-449b-bdfc-d7de614dc627
 - Instant break items
 - Instant break sick pinata
 - Force Gretchen hunted Item (With List of all possible items including removed content)
+- World Time Slider
 
 ---
 
