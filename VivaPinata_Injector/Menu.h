@@ -153,17 +153,6 @@ namespace menu {
 
 	static inline void RenderGarden() {
 
-		bool bUnlimitedGardenSpace = MemHelp::IsPatchEnabled(g_UnlimitedGardenSpace);
-		if (ImGui::Checkbox("Unlimited Garden Space (WIP)", &bUnlimitedGardenSpace)) {
-			MemHelp::SetPatch(g_UnlimitedGardenSpace, bUnlimitedGardenSpace);
-			if (bUnlimitedGardenSpace) {
-				std::cout << "Unlimited Garden Space enabled" << std::endl;
-			}
-			else {
-				std::cout << "Unlimited Garden Space disabled" << std::endl;
-			}
-		}
-
 		//float controller for g_Time
 		float timeScale = g_Time;
 		if (ImGui::SliderFloat("World Time", &timeScale, 0.0f, 86400.0f)) {
@@ -199,6 +188,28 @@ namespace menu {
 			}
 		}
 
+
+		bool bAlwaysWildcard = MemHelp::IsPatchEnabled(g_AlwaysWildcard);
+		if (ImGui::Checkbox("Always Wildcard", &bAlwaysWildcard)) {
+			MemHelp::SetPatch(g_AlwaysWildcard, bAlwaysWildcard);
+			if (bAlwaysWildcard) {
+				std::cout << "Always Wildcard enabled" << std::endl;
+			}
+			else {
+				std::cout << "Always Wildcard disabled" << std::endl;
+			}
+		}
+
+		bool bInstantPinataGrowth = MemHelp::IsPatchEnabled(g_InstantPinataGrowth);
+		if (ImGui::Checkbox("Instant Cocoon", &bInstantPinataGrowth)) {
+			MemHelp::SetPatch(g_InstantPinataGrowth, bInstantPinataGrowth);
+			if (bInstantPinataGrowth) {
+				std::cout << "Instant Cocoon enabled" << std::endl;
+			}
+			else {
+				std::cout << "Instant Cocoon disabled" << std::endl;
+			}
+		}
 		
 		//Get current hunted Piñata from EE8510 
 		uint32_t huntedPinata = MemHelp::GetInt(0xAE8510);
@@ -229,6 +240,10 @@ namespace menu {
 
 		//Add dropdown for hunted Piñata
 		if (ImGui::BeginCombo("Hunted Pinata", hunted)) {
+			// Show tooltip warning when hovered
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup)) {
+				ImGui::SetTooltip("Warning: Selecting certain items may crash the game and corrupt your save. Proceed with caution!");
+			}
 			//for each Piñata in the hunted Piñata 
 			for (PinataIDs Pinata : g_PinataIDs) {
 				//set color based on the type of actor
@@ -262,7 +277,14 @@ namespace menu {
 		int RNG_Seed = *(int*)addressValue2;
 		//Show debug values if enabled
 		if (g_Debug) {
-			
+			std::string RESULT_4B5B90_Hex = std::format("0x{:X}", RESULT_4B5B90);
+			ImGui::Text("RESULT_4B5B90: %s", RESULT_4B5B90_Hex.c_str());
+			ImGui::Text("RESULT_80E820: %d", RESULT_80E820);
+			ImGui::Text("RESULT_81A9C0: %d", RESULT_81A9C0);
+			ImGui::Text("RESULT_957750: %d", RESULT_957750);
+			ImGui::Text("TimeContext: %d", RESULT_7738F0);
+
+			ImGui::Separator();
 
 			ImGui::Text("RNG Seed Value: %d", RNG_Seed);
 			//Debug values (Once set they will display)
@@ -277,6 +299,7 @@ namespace menu {
 			if (g_CameraDataPtr) {
 				ImGui::Text("Camera Mode: %d", g_CameraDataPtr->CameraMode);
 			}
+			
 			if (g_i1 != 0)
 			{
 				ImGui::Text("i1: %d", g_i1);
@@ -348,6 +371,9 @@ namespace menu {
         ImGui::Text("Instant Break Items");  
         ImGui::Text("Instant Break Sick Pinata");  
 		ImGui::Text("Shop Item ID List");
+		ImGui::Text("Time Slider");
+		ImGui::Text("Always Wildcard");
+		ImGui::Text("Instant Pinata Growth");
         ImGui::EndChild();
 
 		ImGui::SetWindowFontScale(1.0f);

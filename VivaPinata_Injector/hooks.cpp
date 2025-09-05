@@ -6,6 +6,8 @@
 #include "Patches.h"
 
 
+
+
 void hooks::Setup()
 {
 	if (MH_Initialize())
@@ -13,7 +15,7 @@ void hooks::Setup()
 
 	// Register Hook Classes
 	{
-		HookList.push_back(std::make_unique<PrintHooks>());
+		//HookList.push_back(std::make_unique<PrintHooks>());
 		HookList.push_back(std::make_unique<DXHooks>());
 	}
 
@@ -84,19 +86,6 @@ void hooks::Setup()
 	)) throw std::runtime_error("Unable to hook AddOrUpdatePackageContext_008B73E0()");
 	
 	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x00865A40),
-		&OpenWadFile,
-		reinterpret_cast<void**>(&OpenWadFile_00865A40_Original)
-	)) throw std::runtime_error("Unable to hook OpenWadFile()");
-
-	
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x004A1BE0),
-		&ReadQualitySettings,
-		reinterpret_cast<void**>(&ReadQualitySettings_004A1BE0_Original)
-	)) throw std::runtime_error("Unable to hook ReadQualitySettings()");
-
-	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x0096E7B0),
 		&UnknownTest_0096E7B0,
 		reinterpret_cast<void**>(&UnknownTest_0096E7B0_Original)
@@ -151,12 +140,6 @@ void hooks::Setup()
 	)) throw std::runtime_error("Unable to ");
 
 	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x00418FF0),
-		&PseudoRandom_00418FF0,
-		reinterpret_cast<void**>(&PseudoRandom_00418FF0_Original)
-	)) throw std::runtime_error("Unable to ");
-
-	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x004B5430),
 		&sub_4B5430,
 		reinterpret_cast<void**>(&sub_4B5430_Original)
@@ -185,6 +168,30 @@ void hooks::Setup()
 		&sub_957750,
 		reinterpret_cast<void**>(&sub_957750_Original)
 	)) throw std::runtime_error("Unable to ");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007F0E60),
+		&Tags_7F0E60,
+		reinterpret_cast<void**>(&Tags_7F0E60_Original)
+	)) throw std::runtime_error("Unable to Tags_7F0E60()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007F0D10),
+		&CreateTaggedFloat,
+		reinterpret_cast<void**>(&CreateTaggedFloat_Original)
+	)) throw std::runtime_error("Unable to CreateTaggedFloat_007F0D10()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00798220),
+		&sub_798220,
+		reinterpret_cast<void**>(&sub_798220_Original)
+	)) throw std::runtime_error("Unable to sub_798220()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007785D0),
+		&GardenSpaceThreshold_007785D0,
+		reinterpret_cast<void**>(&GardenSpaceThreshold_007785D0_Original)
+	)) throw std::runtime_error("Unable to GardenSpaceThreshold_007785D0()");
 
 	/*
 	if (MH_CreateHook(
@@ -523,10 +530,10 @@ DWORD* __fastcall hooks::SetGlobalSaveStruct_007F8FB0(DWORD* thisptr) noexcept {
 		CompressedSave[4] = 1;
 	*/
 	//Force thisptr to be XMLSave
-	thisptr[0] = 0x007F30E0; // sub_7F30E0
-	thisptr[1] = 0x007F3680; // sub_7F3680
-	thisptr[2] = 0x007F3E70; // sub_7F3E70
-	thisptr[3] = 0x0044B1A0; // nullsub_44 (This is a null function, so we can use any valid address)
+	//thisptr[0] = 0x007F30E0; // sub_7F30E0
+	//thisptr[1] = 0x007F3680; // sub_7F3680
+	//thisptr[2] = 0x007F3E70; // sub_7F3E70
+	//thisptr[3] = 0x0044B1A0; // nullsub_44 (This is a null function, so we can use any valid address)
 	//thisptr[4] = 0; // 0 for XMLSave
 	//DWORD* result = SetGlobalSaveStruct_007F8FB0_Original(thisptr);
 	//return result;
@@ -569,11 +576,9 @@ int __cdecl hooks::PseudoRandom_00418FF0(int* a1, int a2, int a3) noexcept
 	return result;
 }
 
-
-
 int __cdecl hooks::sub_80E820(int a1) noexcept
 {
-	return sub_80E820_Original(a1);
+	return *(DWORD*)(a1 + 120);
 }
 
 int __cdecl hooks::sub_957750(int a1) noexcept
@@ -595,13 +600,17 @@ int __cdecl hooks::sub_4B54A0(DWORD* a1, int a2) noexcept
 	return result;
 }
 
-
 //These 2 functions have something to do with the wildcard random chance
 int __cdecl hooks::sub_4B5430(int a1) noexcept
 {
 	int v2 = sub_80E820(a1);
 	int v4 = sub_957750(v2);
 	int TimeContext = *(DWORD*)(v4 + 13120);
+
+	//print mem location of a1
+	//std::cout << "Memory location of a1: " << std::hex << a1 << std::dec << std::endl;
+	//store that offset in int
+	RESULT_4B5B90 = a1;
 	
 	if (g_UpdateTime) {
 		*(float*)(TimeContext + 4) = g_Time;
@@ -613,6 +622,90 @@ int __cdecl hooks::sub_4B5430(int a1) noexcept
 	int result = sub_4B5430_Original(a1);
 	return result;
 }
+
+int __cdecl hooks::Tags_7F0E60(int a1, int a2, int a3) noexcept
+{
+	
+	if (a3) {
+		char* str = reinterpret_cast<char*>(a3);
+		if (strcmp(str, "isWildcard") == 0) {
+			//a2 = 1; //Doesn't set the pinatas to wildcard
+		}
+	}
+
+	int result = Tags_7F0E60_Original(a1, a2, a3);
+	return result;
+}
+
+inline bool doonce = false;
+inline int indexx = 0;
+int __cdecl hooks::CreateTaggedFloat(int a1, float a2, int a3) noexcept
+{
+	
+	int result = CreateTaggedFloat_Original(a1, a2, a3);
+	return result;
+
+	
+	if (a3) {
+		char* str = reinterpret_cast<char*>(a3);
+		if (strcmp(str, "x") == 0) {
+			a2 = 0.0f; //Set x position to 0
+		}
+		else if (strcmp(str, "y") == 0) {
+			a2 = 0.0f; //Set y position to 0
+		}
+		else if (strcmp(str, "z") == 0) {
+			a2 = 0.0f; //Set z position to 0
+		}
+		else if (strcmp(str, "r") == 0) {
+			a2 = 0.0f; //Set rotation to 0
+		}
+		else if (strcmp(str, "p") == 0) {
+			a2 = 0.0f; //Set rotation to 0
+		}
+		else if (strcmp(str, "y") == 0) {
+			a2 = 0.0f; //Set rotation to 0
+		}
+		else if (strcmp(str, "scale") == 0) {
+			a2 = 5.0f; //Set scale to 1
+		}
+	}
+}
+
+int __cdecl hooks::sub_798220(int* Player, int a2, void* a3) noexcept
+{
+	//*(char*)(*(DWORD*)Player + 184) = 2; //Sets the player to be player 3 (multiplayer) blocks tools from being used.
+	int result = sub_798220_Original(Player, a2, a3);
+	return result;
+}
+
+int __cdecl hooks::GardenSpaceThreshold_007785D0(int Context, int a2, int a3) noexcept
+{
+	//Force all budgets to be 0
+	*reinterpret_cast<int*>(Context + 4804) = 0;
+	*reinterpret_cast<int*>(Context + 4808) = 0;
+	*reinterpret_cast<int*>(Context + 4812) = 0;
+	*reinterpret_cast<int*>(Context + 4816) = 0;
+	*reinterpret_cast<int*>(Context + 4820) = 0;
+	*reinterpret_cast<int*>(Context + 4824) = 0;
+
+	//Increase all caps to 999999
+	*reinterpret_cast<int*>(Context + 4932) = 999999;
+	*reinterpret_cast<int*>(Context + 4936) = 999999;
+	*reinterpret_cast<int*>(Context + 4940) = 999999;
+	*reinterpret_cast<int*>(Context + 4944) = 999999;
+	*reinterpret_cast<int*>(Context + 4948) = 999999;
+	*reinterpret_cast<int*>(Context + 4952) = 999999;
+	return 1;
+}
+
+
+
+
+
+
+
+
 
 
 

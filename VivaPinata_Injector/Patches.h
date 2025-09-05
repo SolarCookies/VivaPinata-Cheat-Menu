@@ -5,6 +5,12 @@
 inline float g_Time = 0.0f; //Delta time between frames
 inline bool g_UpdateTime = false; //Set to true when g_Time is updated
 
+inline int RESULT_4B5B90 = 0; //Used to            debug a1
+inline int RESULT_80E820 = 0; //Used to debug   step 1
+inline int RESULT_81A9C0 = 0; //Used to debug   step 2
+inline int RESULT_957750 = 0; //Used to debug   step 3
+inline int RESULT_7738F0 = 0; //Used to debug (TimeContext)
+
 // PlayerData struct
 struct PlayerData
 {
@@ -154,6 +160,22 @@ inline static SimpleMemoryPatch g_UnlimitedGardenSpace = {
 		{0x53, 0x56, 0x8B, 0x74, 0x24, 0x10},
 		{0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3}
 };
+
+inline static SimpleMemoryPatch g_AlwaysWildcard = {
+    "Always Wildcard",
+    0x4DEEA7,
+        {0x68, 0x11, 0x27},
+        {0x68, 0x00, 0x00}
+};
+
+//00531231	0xa	D8 5D 00 DF E0 F6 C4 01 75 5A 	90 90 90 90 90 90 90 90 90 90  Instant Pinata Growth
+inline static SimpleMemoryPatch g_InstantPinataGrowth = {
+    "Instant Pinata Growth",
+    0x531231,
+        {0xD8, 0x5D, 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x01, 0x75, 0x5A},
+		{0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}
+};
+
 
 inline uint16_t g_GrassLevel = 128; //Default grass level
 
@@ -2898,116 +2920,9 @@ inline static std::vector<PinataIDs> g_PinataIDs = {
 };
 
 
-
-// videoscreenresx | Max = 1920 Min = 640
-// videoscreenresy | Max = 1200 Min = 480
-// videowidescreen | Max = 1 Min = 0
-// videogammacorrect | Max = 200 Min = 0
-// videorefreshrate | Max = 120 Min = 60
-// detailmaterial | Max = 2 Min = 0
-// detailtexture | Max = 2 Min = 0
-// detailgrass | Max = 2 Min = 0
-// detailfur | Max = 2 Min = 0
-// detailwater | Max = 2 Min = 0
-// detailshadows | Max = 2 Min = 0
-// mousemovementspeed | Max = 100 Min = 1
-// mouserotationspeed | Max = 100 Min = 1
-// volumesfx | Max = 100 Min = 0
-// volumemusic | Max = 100 Min = 0
-// volumespeech | Max = 100 Min = 0
-inline static const int g_MaxConfigSettings[17] = { 7680, 4320, 1, 200, 999, 2, 2, 2, 2, 2, 2, 2, 100, 100, 100, 100, 100 };
-inline static const int g_MinConfigSettings[17] = { 640, 480, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 };
-
-
 inline static void OnStartupPatch()
 {
-    uintptr_t addressValue = GetVivaAddressPtr(0x00A468F0); //MaxSettingValues_A468F0
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-		VirtualProtect((LPVOID)addressValue, sizeof(g_MaxConfigSettings), PAGE_EXECUTE_READWRITE, &oldProtect);
-        memcpy((LPVOID)addressValue, g_MaxConfigSettings, sizeof(g_MaxConfigSettings));
-		std::cout << "Max Config Settings patched" << std::endl;
-		std::cout << "Max Config Settings: ";
-		//read actual values from memory and print them out to verify the patch worked
-        for (int i = 0; i < 17; i++)
-        {
-            int value = *((int*)(addressValue + (i * sizeof(int))));
-            std::cout << value << " ";
-		}
-		std::cout << std::endl;
-		VirtualProtect((LPVOID)addressValue, sizeof(g_MaxConfigSettings), oldProtect, &oldProtect);
-	}
-	addressValue = GetVivaAddressPtr(0x00A46860); //MinSettingValues_A46860
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, sizeof(g_MinConfigSettings), PAGE_EXECUTE_READWRITE, &oldProtect);
-        memcpy((LPVOID)addressValue, g_MinConfigSettings, sizeof(g_MinConfigSettings));
-		std::cout << "Min Config Settings patched" << std::endl;
-		std::cout << "Min Config Settings: ";
-		//read actual values from memory and print them out to verify the patch worked
-        for (int i = 0; i < 17; i++)
-        {
-            int value = *((int*)(addressValue + (i * sizeof(int))));
-			std::cout << value << " ";
-		}
-		std::cout << std::endl;
-        VirtualProtect((LPVOID)addressValue, sizeof(g_MinConfigSettings), oldProtect, &oldProtect);
-	}
-
-    //Set Max res at 009E54E0
-	addressValue = GetVivaAddressPtr(0x009E54E0);
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-        *(int*)addressValue = g_MaxConfigSettings[0]; //Max res X
-        VirtualProtect((LPVOID)addressValue, 4, oldProtect, &oldProtect);
-    }
-	//Set Max res at 009E54E4
-    addressValue = GetVivaAddressPtr(0x009E54E4);
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-        *(int*)addressValue = g_MaxConfigSettings[1]; //Max res Y
-        VirtualProtect((LPVOID)addressValue, 4, oldProtect, &oldProtect);
-	}
-    //set max resx at 009E54D8
-	addressValue = GetVivaAddressPtr(0x009E54D8); //Max res X
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-        *(int*)addressValue = g_MaxConfigSettings[0]; //Max res X
-        VirtualProtect((LPVOID)addressValue, 4, oldProtect, &oldProtect);
-    }
-    //set max resy at 009E54DC
-    addressValue = GetVivaAddressPtr(0x009E54DC); //Max res Y
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-        *(int*)addressValue = g_MaxConfigSettings[1]; //Max res Y
-        VirtualProtect((LPVOID)addressValue, 4, oldProtect, &oldProtect);
-	}
-
-	//MemHelp::SetPatch(g_UltraGrass, true); //Used to disable the quality settings for grass so we can manually set it to ultra
-	addressValue = GetVivaAddressPtr(0x00BAE754); //Grass quality setting
-    if (addressValue != 0)
-    {
-        DWORD oldProtect;
-        VirtualProtect((LPVOID)addressValue, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-        *(int*)addressValue = g_GrassLevel; //Set grass to ultra quality
-        VirtualProtect((LPVOID)addressValue, 4, oldProtect, &oldProtect);
-        std::cout << "Grass quality set to ultra" << std::endl;
-
-        //lock
-		//VirtualLock((LPVOID)addressValue, 4);
-		std::cout << "Grass quality locked" << std::endl;
-		std::cout << "Current grass quality: " << *(int*)addressValue << std::endl;
-	}
+    
 
 }
 

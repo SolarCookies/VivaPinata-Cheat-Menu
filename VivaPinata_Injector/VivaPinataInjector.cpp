@@ -9,7 +9,31 @@
 #include "hooks.h"
 
 
-// Function to set up the console
+// Custom stream buffer that writes to two buffers (console + file)
+class TeeBuf : public std::streambuf {
+	std::streambuf* sb1;
+	std::streambuf* sb2;
+
+public:
+	TeeBuf(std::streambuf* buf1, std::streambuf* buf2) : sb1(buf1), sb2(buf2) {}
+
+protected:
+	int overflow(int c) override {
+		if (c == EOF) return !EOF;
+		if (sb1->sputc(c) == EOF) return EOF;
+		if (sb2->sputc(c) == EOF) return EOF;
+		return c;
+	}
+
+	int sync() override {
+		return (sb1->pubsync() == 0 && sb2->pubsync() == 0) ? 0 : -1;
+	}
+};
+
+std::ofstream logfile;
+TeeBuf* teeBuf;
+std::ostream* out;
+
 void SetupConsole()
 {
 	AllocConsole();
@@ -18,9 +42,20 @@ void SetupConsole()
 	freopen_s(&file, "CONOUT$", "w", stderr);
 	freopen_s(&file, "CONIN$", "r", stdin);
 
-	// Set the console code page to UTF-8 so that we can use Unicode characters
+	// Set console to UTF-8
 	SetConsoleOutputCP(CP_UTF8);
 	std::ios::sync_with_stdio();
+
+	// Open log file
+	logfile.open("plugins/VivaPinata_ModMenu.log", std::ios::out | std::ios::trunc);
+
+	// Create tee stream (console + file)
+	teeBuf = new TeeBuf(std::cout.rdbuf(), logfile.rdbuf());
+	out = new std::ostream(teeBuf);
+
+	// Redirect std::cout and std::cerr to our tee stream
+	std::cout.rdbuf(teeBuf);
+	std::cerr.rdbuf(teeBuf);
 }
 
 

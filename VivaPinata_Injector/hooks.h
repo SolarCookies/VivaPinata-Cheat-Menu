@@ -188,4 +188,26 @@ namespace hooks
 	using sub_957750Fn = int(__cdecl*)(int a1) noexcept;
 	inline sub_957750Fn sub_957750_Original = nullptr;
 	int __cdecl sub_957750(int a1) noexcept;
+
+	//int __cdecl Tags_7F0E60(int a1, int a2, int a3)
+	using TagsFn_7F0E60 = int(__cdecl*)(int a1, int a2, int a3) noexcept;
+	inline TagsFn_7F0E60 Tags_7F0E60_Original = nullptr;
+	int __cdecl Tags_7F0E60(int a1, int a2, int a3) noexcept;
+
+	//int __cdecl CreateTaggedFloat(int a1, float a2, int a3)
+	using CreateTaggedFloatFn = int(__cdecl*)(int a1, float a2, int a3) noexcept;
+	inline CreateTaggedFloatFn CreateTaggedFloat_Original = nullptr;
+	int __cdecl CreateTaggedFloat(int a1, float a2, int a3) noexcept;
+
+	//  is the default cursor colors for multiplayer)
+	//int __cdecl sub_798220(int* Player, int a2, void* a3)
+	using sub_798220Fn = int(__cdecl*)(int* Player, int a2, void* a3) noexcept;
+	inline sub_798220Fn sub_798220_Original = nullptr;
+	int __cdecl sub_798220(int* Player, int a2, void* a3) noexcept;
+
+	//int __cdecl GardenSpaceThreshold_7785D0(int Context, int a2, int a3)
+	using GardenSpaceThresholdFn_007785D0 = int(__cdecl*)(int Context, int a2, int a3) noexcept;
+	inline GardenSpaceThresholdFn_007785D0 GardenSpaceThreshold_007785D0_Original = nullptr;
+	int __cdecl GardenSpaceThreshold_007785D0(int Context, int a2, int a3) noexcept;
+	
 }
