@@ -176,6 +176,14 @@ inline static SimpleMemoryPatch g_InstantPinataGrowth = {
 		{0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}
 };
 
+//Rather then checking if the player has friends we just force it to know they dont
+inline static SimpleMemoryPatch g_FixCrates = {
+	"Fix Crates",
+    0x849A25,
+    {0x74},
+	{0xEB}
+};
+
 
 inline uint16_t g_GrassLevel = 128; //Default grass level
 
@@ -2922,7 +2930,8 @@ inline static std::vector<PinataIDs> g_PinataIDs = {
 
 inline static void OnStartupPatch()
 {
-    
+//apply g_FixCrates
+	//MemHelp::SetPatch(g_FixCrates, true);
 
 }
 

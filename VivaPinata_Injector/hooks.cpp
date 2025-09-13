@@ -3,6 +3,7 @@
 //Hooks
 #include "Hooks/Prints/PrintHooks.h"
 #include "Hooks/DirectX/DXHooks.h"
+#include "Hooks/XLive/XLiveHooks.h"
 #include "Patches.h"
 
 
@@ -17,6 +18,7 @@ void hooks::Setup()
 	{
 		//HookList.push_back(std::make_unique<PrintHooks>());
 		HookList.push_back(std::make_unique<DXHooks>());
+		HookList.push_back(std::make_unique<XLiveHooks>());
 	}
 
 	OnStartupPatch();
