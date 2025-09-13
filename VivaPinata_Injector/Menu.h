@@ -374,27 +374,23 @@ namespace menu {
 		ImGui::Text("Time Slider");
 		ImGui::Text("Always Wildcard");
 		ImGui::Text("Instant Pinata Growth");
+		ImGui::Text("Unlimited Space (With Romancing)");
+		ImGui::Text("Create Sending Patch");
+		ImGui::Text("HD Patches");
         ImGui::EndChild();
 
 		ImGui::SetWindowFontScale(1.0f);
 		ImGui::Text("OlieGamerTV ");
 		ImGui::SetWindowFontScale(0.6f);
 		ImGui::BeginChild("ScrollableRegion2", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		ImGui::Text("Print Function hooks");
-		ImGui::EndChild();
-
-		ImGui::SetWindowFontScale(1.0f);
-		ImGui::Text("Jacob ");
-		ImGui::SetWindowFontScale(0.6f);
-		ImGui::BeginChild("ScrollableRegion3", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		ImGui::Text("Unlimited Garden Space");
+		ImGui::Text("Print Function hooks (In debug builds)");
 		ImGui::EndChild();
 
 		ImGui::SetWindowFontScale(1.0f);
 		ImGui::Text("u/Little-Business-9508 ");
 		ImGui::SetWindowFontScale(0.6f);
 		ImGui::BeginChild("ScrollableRegion4", ImVec2(0, 100), true, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		ImGui::Text("Gretchen Hunted Pinata Offsets");
+		ImGui::Text("Gretchen Hunted Pinata Offset");
 		ImGui::EndChild();
 		
 
