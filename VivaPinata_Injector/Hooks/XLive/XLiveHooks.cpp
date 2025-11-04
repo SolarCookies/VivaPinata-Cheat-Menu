@@ -24,8 +24,6 @@ void XLiveHooks::Setup() {
 
 int __stdcall Hooks::XShowGamerCardUI_5252(int a1, int a2, int a3)
 {
-	std::cout << "XShowGamerCardUI_5252 Called: " << a1 << ", " << a2 << ", " << a3 << std::endl;
-	//int result = Hooks::XShowGamerCardUI_5252_Original(a1, a2, a3);
 	int result = 0; // force success
 	return result;
 }
