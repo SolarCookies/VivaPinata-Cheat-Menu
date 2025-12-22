@@ -5,6 +5,7 @@
 #include "Hooks/DirectX/DXHooks.h"
 #include "Hooks/XLive/XLiveHooks.h"
 #include "Hooks/Saving/SaveHooks.h"
+#include "Hooks/AssetLoading/AssetHooks.h"
 #include "Patches.h"
 
 
@@ -21,6 +22,7 @@ void hooks::Setup()
 		HookList.push_back(std::make_unique<DXHooks>());
 		HookList.push_back(std::make_unique<XLiveHooks>());
 		HookList.push_back(std::make_unique<SaveHooks>());
+		HookList.push_back(std::make_unique<AssetHooks>());
 	}
 
 	OnStartupPatch();
@@ -196,18 +198,6 @@ void hooks::Setup()
 		&GardenSpaceThreshold_007785D0,
 		reinterpret_cast<void**>(&GardenSpaceThreshold_007785D0_Original)
 	)) throw std::runtime_error("Unable to GardenSpaceThreshold_007785D0()");
-
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x008BD640),
-		&FindAssetVDATptr_008BD640,
-		reinterpret_cast<void**>(&FindAssetVDATptr_008BD640_Original)
-	)) throw std::runtime_error("Unable to FindAssetVDATptr_008BD640()");
-
-	if (MH_CreateHook(
-		reinterpret_cast<void*>(0x008BC290),
-		&FindAssetWithTag_008BC290,
-		reinterpret_cast<void**>(&FindAssetWithTag_008BC290_Original)
-	)) throw std::runtime_error("Unable to FindAssetWithTagFn_008BC290()");
 
 	/*
 	if (MH_CreateHook(
@@ -743,22 +733,6 @@ int __cdecl hooks::GardenSpaceThreshold_007785D0(int Context, int a2, int a3) no
 	return 1;
 }
 
-
-/// <summary>
-/// These next 2 functions have something to do with loading assets, specifically i believe they find/load the VDAT files with the tag name.
-/// </summary>
-int __cdecl hooks::FindAssetVDATptr_008BD640(char* FileName, int** a2, DWORD* a3, int a4, char* a5, int a6) noexcept
-{
-	int result = FindAssetVDATptr_008BD640_Original(FileName, a2, a3, a4, a5, a6);
-	return result;
-}
-
-int __cdecl hooks::FindAssetWithTag_008BC290(char* Source) noexcept
-{
-	int result = FindAssetWithTag_008BC290_Original(Source); 
-	return result;
-}
-
 /// <summary>
 /// This function is called in "int __usercall Pinata_HatchEggAndSpawnOffspring_4dedd0@<eax>(float* parentPinata@<eax>,int eggActor,int isFromMinigame)"
 /// If the pinata has "WildcardParams" this function returns the multiplier chance for the wildcard to spawn.
@@ -786,8 +760,8 @@ int __cdecl hooks::GetSpeciesID_7501D0(int a1) noexcept
 	}
 	if (!found) {
 		g_PinataList.push_back(a1);
-		std::cout << "Memory location of a1: " << std::hex << a1 << std::dec << std::endl;
-		std::cout << "Baby Size value at a1 + 885: " << reinterpret_cast<DWORD*>(a1)[885] << std::endl;
+		//std::cout << "Memory location of a1: " << std::hex << a1 << std::dec << std::endl;
+		//std::cout << "Baby Size value at a1 + 885: " << reinterpret_cast<DWORD*>(a1)[885] << std::endl;
 	}
     
     //*((DWORD*)a1 + 898) = 10000; // Set to max romance count to force wildcard chance to be maxed out
@@ -806,7 +780,7 @@ int __cdecl hooks::GetSpeciesID_7501D0(int a1) noexcept
 int __cdecl hooks::EggBreakSpawn_93F490(int a1, float* a2, float* a3, float Scale, int a5, float a6, int a7) noexcept
 {
 	//print all parameters, a2 and a3 are vectors scale is a float
-	std::cout << "EggBreakSpawn called with a1: " << a1 << " a2: (" << a2[0] << ", " << a2[1] << ", " << a2[2] << ") a3: (" << a3[0] << ", " << a3[1] << ", " << a3[2] << ") Scale: " << Scale << " a5: " << a5 << " a6: " << a6 << " a7: " << a7 << std::endl;
+	//std::cout << "EggBreakSpawn called with a1: " << a1 << " a2: (" << a2[0] << ", " << a2[1] << ", " << a2[2] << ") a3: (" << a3[0] << ", " << a3[1] << ", " << a3[2] << ") Scale: " << Scale << " a5: " << a5 << " a6: " << a6 << " a7: " << a7 << std::endl;
 	return EggBreakSpawn_93F490_Original(a1, a2, a3, Scale, a5, a6, a7);
 }
 

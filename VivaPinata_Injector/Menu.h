@@ -291,6 +291,15 @@ namespace menu {
 		int RNG_Seed = *(int*)addressValue2;
 		//Show debug values if enabled
 		if (g_Debug) {
+
+			if (ImGui::Checkbox("Dump VDATs", &Dumpvdata)) {
+				SaveSettings();
+			}
+			if (ImGui::Checkbox("Load Custom VDATs", &Loadvdata)) {
+				SaveSettings();
+			}
+
+			ImGui::Separator();
 			std::string RESULT_4B5B90_Hex = std::format("0x{:X}", RESULT_4B5B90);
 			ImGui::Text("RESULT_4B5B90: %s", RESULT_4B5B90_Hex.c_str());
 			ImGui::Text("RESULT_80E820: %d", RESULT_80E820);

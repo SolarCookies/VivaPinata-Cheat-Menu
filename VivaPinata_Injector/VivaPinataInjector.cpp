@@ -72,6 +72,7 @@ void Setup(const HMODULE instance)
 		std::cout << "Starting hooks setup..." << std::endl;
 		hooks::Setup();
 		std::cout << "Hooks setup complete" << std::endl;
+		LoadSettings();
 	}
 	catch (const std::exception& error)
 	{
@@ -80,7 +81,7 @@ void Setup(const HMODULE instance)
 		MessageBox(
 			0,
 			error.what(),
-			"hack error",
+			"error",
 			MB_OK | MB_ICONEXCLAMATION
 		);
 
@@ -95,6 +96,7 @@ UNLOAD:
 	hooks::Destroy();
 	std::cout << "Destroying GUI..." << std::endl;
 	gui::Destroy();
+	SaveSettings();
 
 	std::cout << "Freeing Library and unloading DLL..." << std::endl;
 	FreeLibraryAndExitThread(instance, 0);
@@ -124,6 +126,5 @@ BOOL WINAPI DllMain(
 		if (thread)
 			CloseHandle(thread);
 	}
-
 	return TRUE;
 }

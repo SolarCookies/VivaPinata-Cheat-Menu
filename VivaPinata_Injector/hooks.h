@@ -211,17 +211,7 @@ namespace hooks
 	int __cdecl GardenSpaceThreshold_007785D0(int Context, int a2, int a3) noexcept;
 	
 
-	//int __cdecl FindAssetVDATptr_8BD640(char *FileName, int **a2, _DWORD *a3, int a4, char *a5, int a6)
-	using FindAssetVDATptrFn_008BD640 = int(__cdecl*)(char* FileName, int** a2, DWORD* a3, int a4, char* a5, int a6) noexcept;
-	inline FindAssetVDATptrFn_008BD640 FindAssetVDATptr_008BD640_Original = nullptr;
-	int __cdecl FindAssetVDATptr_008BD640(char* FileName, int** a2, DWORD* a3, int a4, char* a5, int a6) noexcept;
-
-	//int __cdecl FindAssetWithTag_008BC290(char *Source)
-	using FindAssetWithTagFn_008BC290 = int(__cdecl*)(char* Source) noexcept;
-	inline FindAssetWithTagFn_008BC290 FindAssetWithTag_008BC290_Original = nullptr;
-	int __cdecl FindAssetWithTag_008BC290(char* Source) noexcept;
-
-	//int __cdecl sub_795FF0(int a1) (Returns a multiplayer for the wildcard, so returning 10000 should make it 100% guaranteed to be a wildcard)
+	//int __cdecl sub_795FF0(int a1) (Returns a multiplier for the wildcard, so returning 10000 should make it 100% guaranteed to be a wildcard)
 	using sub_795FF0Fn = int(__cdecl*)(int a1) noexcept;
 	inline sub_795FF0Fn sub_795FF0_Original = nullptr;
 	int __cdecl sub_795FF0(int a1) noexcept;
