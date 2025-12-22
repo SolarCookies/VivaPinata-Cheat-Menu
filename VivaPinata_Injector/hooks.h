@@ -221,5 +221,31 @@ namespace hooks
 	inline FindAssetWithTagFn_008BC290 FindAssetWithTag_008BC290_Original = nullptr;
 	int __cdecl FindAssetWithTag_008BC290(char* Source) noexcept;
 
+	//int __cdecl sub_795FF0(int a1) (Returns a multiplayer for the wildcard, so returning 10000 should make it 100% guaranteed to be a wildcard)
+	using sub_795FF0Fn = int(__cdecl*)(int a1) noexcept;
+	inline sub_795FF0Fn sub_795FF0_Original = nullptr;
+	int __cdecl sub_795FF0(int a1) noexcept;
+
+	//int __cdecl GetSpeciesID_7501D0(int a1)
+	using GetSpeciesIDFn_007501D0 = int(__cdecl*)(int a1) noexcept;
+	inline GetSpeciesIDFn_007501D0 GetSpeciesID_007501D0_Original = nullptr;
+	int __cdecl GetSpeciesID_7501D0(int a1) noexcept;
+
+	//Possible spawning function
+	//void __usercall sub_93F080(int** a1@<ecx>,int a2@<eax>,int a3,float* a4,float* Scale,float a6,float a7,float a8,int a9,int a10,int a11,int* a12,char* Source,float a14,int* a15)
+	//int __cdecl sub_93F490(int a1, float *a2, float *a3, float Scale, int a5, float a6, int a7)
+	using EggBreakSpawn_93F490Fn = int(__cdecl*)(int a1, float* a2, float* a3, float Scale, int a5, float a6, int a7) noexcept;
+	inline EggBreakSpawn_93F490Fn EggBreakSpawn_93F490_Original = nullptr;
+	int __cdecl EggBreakSpawn_93F490(int a1, float* a2, float* a3, float Scale, int a5, float a6, int a7) noexcept;
+
+	//void __cdecl sub_93ECE0(int a1,float* Location,float* Scale,float a4,int a5,int a6,float a7,float a8,int a9,int a10,int a11,char* a12,float a13,int* a14)
+	//using Spawn_93ECE0Fn = void(__cdecl*)(int a1, float* Location, float* Scale, float a4, int a5, int a6, float a7, float a8, int a9, int a10, int a11, char* a12, float a13, int* a14) noexcept;
+	//inline Spawn_93ECE0Fn Spawn_93ECE0_Original = nullptr;
+	//void __cdecl Spawn_93ECE0(int a1, float* Location, float* Scale, float a4, int a5, int a6, float a7, float a8, int a9, int a10, int a11, char* a12, float a13, int* a14) noexcept;
 	
+	//int __cdecl sub_93F220(int a1, float *a2, float *a3, float a4, int a5, float a6, int a7, int a8)
+	using SpawnObject_93F220Fn = int(__cdecl*)(int a1, float* a2, float* a3, float a4, int a5, float a6, int a7, int a8) noexcept;
+	inline SpawnObject_93F220Fn SpawnObject_93F220_Original = nullptr;
+	int __cdecl SpawnObject_93F220(int a1, float* a2, float* a3, float a4, int a5, float a6, int a7, int a8) noexcept;
+
 }

@@ -200,6 +200,20 @@ namespace menu {
 			}
 		}
 
+		// Easy Break Items
+		if (ImGui::Checkbox("Custom Size Mod", &CustomSizesEnabled)) {
+			
+		}
+
+		float customSizeScale = CustomSizes;
+		if (ImGui::SliderFloat("Custom Size Scale", &customSizeScale, 0.1f, 10.0f)) {
+			CustomSizes = customSizeScale;
+		}
+
+		// Easy Break Items
+		//if (ImGui::Checkbox("Comically Large Babies", &g_LargeBabys)) {
+		//}
+
 		bool bInstantPinataGrowth = MemHelp::IsPatchEnabled(g_InstantPinataGrowth);
 		if (ImGui::Checkbox("Instant Cocoon", &bInstantPinataGrowth)) {
 			MemHelp::SetPatch(g_InstantPinataGrowth, bInstantPinataGrowth);

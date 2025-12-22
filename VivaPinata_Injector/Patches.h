@@ -5,6 +5,9 @@
 inline float g_Time = 0.0f; //Delta time between frames
 inline bool g_UpdateTime = false; //Set to true when g_Time is updated
 
+inline float CustomSizes = 1.0f;
+inline bool CustomSizesEnabled = false;
+
 inline int RESULT_4B5B90 = 0; //Used to            debug a1
 inline int RESULT_80E820 = 0; //Used to debug   step 1
 inline int RESULT_81A9C0 = 0; //Used to debug   step 2
@@ -120,6 +123,10 @@ inline bool g_Debug = false; // Debug mode
 inline bool g_EasyBreakSickPinata = false;
 inline bool g_EasyBreakItems = false;
 
+inline bool g_LargeBabys = false;
+
+inline std::vector<int> g_PinataList;
+
 inline PlayerData* g_PlayerDataPtr;
 inline CameraData* g_CameraDataPtr;
 inline std::vector<EnityData> g_EntityData;
@@ -206,6 +213,36 @@ inline ComplexMemoryPatch g_UltraGrass = {
         }
     }
     
+};
+
+//Ultra Grass aka 128 layers of grass shells
+inline ComplexMemoryPatch g_AlwaysTwins = {
+    {
+        {
+            "Always Twins check 1",
+            0x4DEED4,
+                {0x87, 0x7C, 0x24, 0x14, 0x00, 0x0F, 0x84, 0xEA, 0x00, 0x00, 0x00},
+                {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}
+        },
+
+        {
+            "Always Twins check 2",
+            0x4DEED4,
+                {0x0F, 0x84, 0xC9, 0x01, 0x00, 0x00, 0x6A, 0x00, 0x53},
+                {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90}
+
+        },
+
+        {
+            "Twin chance float threshold patch",
+            0xA99D88,
+            //0.001f
+				{0x0A, 0xD7, 0x23, 0x3C},
+			//1.0f
+	            {0x00, 0x00, 0x80, 0x3F}
+        }
+    }
+
 };
         
 

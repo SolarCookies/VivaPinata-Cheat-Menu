@@ -4,6 +4,7 @@
 #include "Hooks/Prints/PrintHooks.h"
 #include "Hooks/DirectX/DXHooks.h"
 #include "Hooks/XLive/XLiveHooks.h"
+#include "Hooks/Saving/SaveHooks.h"
 #include "Patches.h"
 
 
@@ -16,9 +17,10 @@ void hooks::Setup()
 
 	// Register Hook Classes
 	{
-		//HookList.push_back(std::make_unique<PrintHooks>());
+		HookList.push_back(std::make_unique<PrintHooks>());
 		HookList.push_back(std::make_unique<DXHooks>());
 		HookList.push_back(std::make_unique<XLiveHooks>());
+		HookList.push_back(std::make_unique<SaveHooks>());
 	}
 
 	OnStartupPatch();
@@ -226,6 +228,34 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&sub_7F2170_Original)
 	)) throw std::runtime_error("Unable to hook to sub_7F2170()");
 	*/
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x00795FF0),
+		&sub_795FF0,
+		reinterpret_cast<void**>(&sub_795FF0_Original)
+	)) throw std::runtime_error("Unable to hook sub__00795FF0()");
+
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x007501D0),
+		&GetSpeciesID_7501D0,
+		reinterpret_cast<void**>(&GetSpeciesID_007501D0_Original)
+	)) throw std::runtime_error("Unable to hook GetSpeciesID_7501D0()");
+
+	//EggBreakSpawn_93F490
+	//if (MH_CreateHook(
+	//	reinterpret_cast<void*>(0x0093F490),
+	//	&EggBreakSpawn_93F490,
+	//	reinterpret_cast<void**>(&EggBreakSpawn_93F490_Original)
+	//)) throw std::runtime_error("Unable to hook EggBreakSpawn_93F490()");
+
+	//SpawnObject_93F220
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x0093F220),
+		&SpawnObject_93F220,
+		reinterpret_cast<void**>(&SpawnObject_93F220_Original)
+	)) throw std::runtime_error("Unable to hook SpawnObject_93F220()");
+
+	
 
 	// enable hooks
 	if (MH_EnableHook(MH_ALL_HOOKS))
@@ -728,6 +758,75 @@ int __cdecl hooks::FindAssetWithTag_008BC290(char* Source) noexcept
 	int result = FindAssetWithTag_008BC290_Original(Source); 
 	return result;
 }
+
+/// <summary>
+/// This function is called in "int __usercall Pinata_HatchEggAndSpawnOffspring_4dedd0@<eax>(float* parentPinata@<eax>,int eggActor,int isFromMinigame)"
+/// If the pinata has "WildcardParams" this function returns the multiplier chance for the wildcard to spawn.
+/// </summary>
+int __cdecl hooks::sub_795FF0(int a1) noexcept
+{
+	if (MemHelp::IsPatchEnabled(g_AlwaysWildcard)) {
+		return 10000; //Always return max chance for wildcard
+	}
+	else {
+		return sub_795FF0_Original(a1);
+	}
+}
+
+int __cdecl hooks::GetSpeciesID_7501D0(int a1) noexcept
+{
+	if(g_LargeBabys) reinterpret_cast<float*>(a1)[885] = 10.0f; // Should set the pinata to be 3x the size
+	//Print memory location of a1 + 898 and value at a1 + 898
+	bool found = false;
+	for (int i = 0; i < g_PinataList.size(); i++) {
+		if(g_PinataList[i] == a1) {
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		g_PinataList.push_back(a1);
+		std::cout << "Memory location of a1: " << std::hex << a1 << std::dec << std::endl;
+		std::cout << "Baby Size value at a1 + 885: " << reinterpret_cast<DWORD*>(a1)[885] << std::endl;
+	}
+    
+    //*((DWORD*)a1 + 898) = 10000; // Set to max romance count to force wildcard chance to be maxed out
+    if (MemHelp::IsPatchEnabled(g_AlwaysWildcard)) {
+        reinterpret_cast<DWORD*>(a1)[898] = 10000;
+    }
+
+    int v1 = *(DWORD*)(a1 + 2700);
+    if (v1) {
+        return *(DWORD*)v1;
+    } else {
+        return 0;
+    }
+}
+
+int __cdecl hooks::EggBreakSpawn_93F490(int a1, float* a2, float* a3, float Scale, int a5, float a6, int a7) noexcept
+{
+	//print all parameters, a2 and a3 are vectors scale is a float
+	std::cout << "EggBreakSpawn called with a1: " << a1 << " a2: (" << a2[0] << ", " << a2[1] << ", " << a2[2] << ") a3: (" << a3[0] << ", " << a3[1] << ", " << a3[2] << ") Scale: " << Scale << " a5: " << a5 << " a6: " << a6 << " a7: " << a7 << std::endl;
+	return EggBreakSpawn_93F490_Original(a1, a2, a3, Scale, a5, a6, a7);
+}
+
+int __cdecl hooks::SpawnObject_93F220(int a1, float* a2, float* a3, float a4, int a5, float a6, int a7, int a8) noexcept
+{
+	
+	int r;
+	if(a8 == 5 && CustomSizesEnabled){
+		float tempa4 = a4;
+		a4 = CustomSizes;
+		r = SpawnObject_93F220_Original(a1, a2, a3, a4, a5, a6, a7, a8);
+		a4 = tempa4;
+	}
+	else {
+		r = SpawnObject_93F220_Original(a1, a2, a3, a4, a5, a6, a7, a8);
+	}
+	return r;
+}
+
+
 
 
 

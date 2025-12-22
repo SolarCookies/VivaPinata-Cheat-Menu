@@ -2,7 +2,8 @@
 #include "PrintHooks.h"
 
 void PrintHooks::Setup() {
-
+	std::cout << "Setting up print hooks..." << std::endl;
+	/*
 	// Hook the various print functions.
 	if (MH_CreateHook(
 		reinterpret_cast<void*>(0x00405740),
@@ -33,9 +34,15 @@ void PrintHooks::Setup() {
 		&Hooks::PrintFunc_490810,
 		reinterpret_cast<void**>(&Hooks::PrintFunc_490810_Original)
 	)) throw std::runtime_error("Unable to hook PrintFunc_490810()");
+	
+	if (MH_CreateHook(
+		reinterpret_cast<void*>(0x006818C2),
+		&Hooks::OutputDebugStringA_6818C2,
+		reinterpret_cast<void**>(&Hooks::OutputDebugStringA_6818C2_Original)
+	)) throw std::runtime_error("Unable to hook OutputDebugStringA_6818C2()");
 
-	//std::cout << "Print functions hooked successfully." << std::endl;
-
+	std::cout << "Print functions hooked successfully." << std::endl;
+	*/
 
 }
 
@@ -49,7 +56,7 @@ void __cdecl Hooks::PrintFunc_00405740(const char* format, ...) noexcept
 	vsprintf(strToPrint, format, argptr);
 	va_end(argptr);
 
-	//std::cout << strToPrint << std::endl;
+	std::cout << strToPrint << std::endl;
 }
 
 void __cdecl Hooks::PrintFunc_00405790(const char* format, ...) noexcept
@@ -62,7 +69,7 @@ void __cdecl Hooks::PrintFunc_00405790(const char* format, ...) noexcept
 	vsprintf(strToPrint, format, argptr);
 	va_end(argptr);
 
-	//std::cout << strToPrint << std::endl;
+	std::cout << strToPrint << std::endl;
 }
 
 void __cdecl Hooks::PrintFunc_004055e0(const char* format, ...) noexcept
@@ -75,7 +82,7 @@ void __cdecl Hooks::PrintFunc_004055e0(const char* format, ...) noexcept
 	vsprintf(strToPrint, format, argptr);
 	va_end(argptr);
 
-	//std::cout << strToPrint << std::endl;
+	std::cout << strToPrint << std::endl;
 }
 
 void __cdecl Hooks::PrintFunc_00402bf0(const char* format, ...) noexcept
@@ -88,7 +95,7 @@ void __cdecl Hooks::PrintFunc_00402bf0(const char* format, ...) noexcept
 	vsprintf(strToPrint, format, argptr);
 	va_end(argptr);
 
-	//std::cout << strToPrint << std::endl;
+	std::cout << strToPrint << std::endl;
 }
 
 // Not actually a function for printing, it's used for parsing file strings.
@@ -103,7 +110,7 @@ void __cdecl Hooks::PrintFunc_00851720(wchar_t* buffer, rsize_t bufsz, const wch
 		buffer[bufsz - 1] = '\0';
 	}
 
-	//std::wcout << buffer << std::endl;
+	std::wcout << buffer << std::endl;
 
 	//PrintFunc_00851720_Original(buffer, bufsz, buffer); Don't need to call the original function, hook does the same job.
 
@@ -118,7 +125,13 @@ void __cdecl Hooks::PrintFunc_490810(char a1, char* Format, ...) noexcept {
 	vsprintf_s(Buffer, sizeof(Buffer), Format, args);
 	va_end(args);
 
-	//std::cout << Buffer << std::endl;
+	std::cout << Buffer << std::endl;
 
 	PrintFunc_490810_Original(a1, Format);
+}
+
+void __stdcall Hooks::OutputDebugStringA_6818C2(LPCSTR lpOutputString) noexcept
+{
+	std::cout << "OutputDebugStringA: " << lpOutputString << std::endl;
+	OutputDebugStringA_6818C2_Original(lpOutputString);
 }

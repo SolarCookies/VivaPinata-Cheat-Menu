@@ -40,4 +40,9 @@ namespace Hooks {
 	using PrintLineFn_490810 = void(__cdecl*)(char, char*, ...) noexcept;
 	inline PrintLineFn_490810 PrintFunc_490810_Original = nullptr;
 	void __cdecl PrintFunc_490810(char a1, char* Format, ...) noexcept;
+
+	// void __stdcall OutputDebugStringA_6818C2(LPCSTR lpOutputString)
+	using OutputDebugStringA_Fn_6818C2 = void(__stdcall*)(LPCSTR) noexcept;
+	inline OutputDebugStringA_Fn_6818C2 OutputDebugStringA_6818C2_Original = nullptr;
+	void __stdcall OutputDebugStringA_6818C2(LPCSTR lpOutputString) noexcept;
 };
